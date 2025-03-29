@@ -357,8 +357,8 @@ export default function MusicPopup() {
                   </span>
                 </div>
                 
-                <div className="mt-1 flex items-center justify-between">
-                  {/* Keyboard hints */}
+                {/* Keyboard hints - vertical layout */}
+                <div className="mt-1 flex flex-col space-y-1">
                   <span className="text-xs text-[rgb(var(--muted-foreground))]">
                     <kbd className="px-1 py-0.5 bg-[rgb(var(--muted))] rounded text-[10px] border border-[rgb(var(--border))]">Space</kbd> play/pause
                   </span>

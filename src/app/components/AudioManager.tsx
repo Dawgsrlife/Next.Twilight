@@ -46,6 +46,12 @@ export default function AudioManager({ children }: { children: React.ReactNode }
   const analyserRef = useRef<AnalyserNode | null>(null);
   const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
   const animationFrameRef = useRef<number | null>(null);
+  
+  // Use refs to store event handlers for cleanup
+  const updateMediaSessionStateRef = useRef<(() => void) | null>(null);
+  const mediaSessionPlayHandlerRef = useRef<(() => void) | null>(null);
+  const mediaSessionPauseHandlerRef = useRef<(() => void) | null>(null);
+  const attemptPlayOnInteractionRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -98,6 +104,70 @@ export default function AudioManager({ children }: { children: React.ReactNode }
         });
       }
 
+      // Define handlers and store in refs for cleanup
+      updateMediaSessionStateRef.current = () => {
+        if (!('mediaSession' in navigator)) return;
+        
+        if (isPlaying) {
+          navigator.mediaSession.playbackState = 'playing';
+        } else {
+          navigator.mediaSession.playbackState = 'paused';
+        }
+      };
+      
+      mediaSessionPlayHandlerRef.current = () => {
+        if (backgroundMusicRef.current?.paused) {
+          togglePlayPause();
+        }
+      };
+      
+      mediaSessionPauseHandlerRef.current = () => {
+        if (!backgroundMusicRef.current?.paused) {
+          togglePlayPause();
+        }
+      };
+      
+      attemptPlayOnInteractionRef.current = () => {
+        if (backgroundMusicRef.current && !isPlaying && !isMuted) {
+          const playPromise = backgroundMusicRef.current.play();
+          if (playPromise !== undefined) {
+            playPromise.then(() => {
+              setIsPlaying(true);
+              if ('mediaSession' in navigator) {
+                navigator.mediaSession.playbackState = 'playing';
+              }
+              document.removeEventListener('click', attemptPlayOnInteractionRef.current!);
+              document.removeEventListener('keydown', attemptPlayOnInteractionRef.current!);
+              document.removeEventListener('touchstart', attemptPlayOnInteractionRef.current!);
+            }).catch(e => {
+              console.error("Play on interaction failed:", e);
+            });
+          }
+        }
+      };
+
+      // Set up MediaSession API for OS media controls
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: 'Lofi Beats',
+          artist: 'Next.js Twilight',
+          album: 'Background Music',
+          artwork: [
+            { src: '/logo.png', sizes: '512x512', type: 'image/png' }
+          ]
+        });
+
+        // Initial state
+        updateMediaSessionStateRef.current();
+
+        // Listen for our own state changes
+        document.addEventListener('audio-playpause-toggled', updateMediaSessionStateRef.current);
+        
+        // Set up the action handlers
+        navigator.mediaSession.setActionHandler('play', mediaSessionPlayHandlerRef.current);
+        navigator.mediaSession.setActionHandler('pause', mediaSessionPauseHandlerRef.current);
+      }
+
       setTimeout(() => {
         if (backgroundMusicRef.current) {
           if (audioContextRef.current?.state === 'suspended') {
@@ -110,38 +180,31 @@ export default function AudioManager({ children }: { children: React.ReactNode }
           if (playPromise !== undefined) {
             playPromise.then(() => {
               setIsPlaying(true);
+              if ('mediaSession' in navigator) {
+                navigator.mediaSession.playbackState = 'playing';
+              }
             }).catch(e => {
               if (e.name === 'NotAllowedError') {
                 console.log("Auto-play prevented. User interaction needed to start audio.");
                 setIsPlaying(false);
+                if ('mediaSession' in navigator) {
+                  navigator.mediaSession.playbackState = 'paused';
+                }
               } else if (e.name !== 'AbortError') {
                 console.log("Audio playback error:", e);
                 setIsPlaying(false);
+                if ('mediaSession' in navigator) {
+                  navigator.mediaSession.playbackState = 'paused';
+                }
               }
             });
           }
         }
       }, 100);
 
-      const attemptPlayOnInteraction = () => {
-        if (backgroundMusicRef.current && !isPlaying && !isMuted) {
-          const playPromise = backgroundMusicRef.current.play();
-          if (playPromise !== undefined) {
-            playPromise.then(() => {
-              setIsPlaying(true);
-              document.removeEventListener('click', attemptPlayOnInteraction);
-              document.removeEventListener('keydown', attemptPlayOnInteraction);
-              document.removeEventListener('touchstart', attemptPlayOnInteraction);
-            }).catch(e => {
-              console.error("Play on interaction failed:", e);
-            });
-          }
-        }
-      };
-
-      document.addEventListener('click', attemptPlayOnInteraction);
-      document.addEventListener('keydown', attemptPlayOnInteraction);
-      document.addEventListener('touchstart', attemptPlayOnInteraction);
+      document.addEventListener('click', attemptPlayOnInteractionRef.current);
+      document.addEventListener('keydown', attemptPlayOnInteractionRef.current);
+      document.addEventListener('touchstart', attemptPlayOnInteractionRef.current);
 
     } catch (error) {
       console.error("Failed to initialize audio:", error);
@@ -175,9 +238,18 @@ export default function AudioManager({ children }: { children: React.ReactNode }
         audioContextRef.current = null;
       }
 
-      document.removeEventListener('click', () => {});
-      document.removeEventListener('keydown', () => {});
-      document.removeEventListener('touchstart', () => {});
+      if ('mediaSession' in navigator && updateMediaSessionStateRef.current) {
+        // Clean up MediaSession handlers
+        document.removeEventListener('audio-playpause-toggled', updateMediaSessionStateRef.current);
+        navigator.mediaSession.setActionHandler('play', null);
+        navigator.mediaSession.setActionHandler('pause', null);
+      }
+
+      if (attemptPlayOnInteractionRef.current) {
+        document.removeEventListener('click', attemptPlayOnInteractionRef.current);
+        document.removeEventListener('keydown', attemptPlayOnInteractionRef.current);
+        document.removeEventListener('touchstart', attemptPlayOnInteractionRef.current);
+      }
     };
   }, []);
 
@@ -297,6 +369,11 @@ export default function AudioManager({ children }: { children: React.ReactNode }
               console.error("Play failed:", e);
               // If failed, revert state
               setIsPlaying(false);
+              
+              // Update MediaSession API state
+              if ('mediaSession' in navigator) {
+                navigator.mediaSession.playbackState = 'paused';
+              }
             }
           });
         }
@@ -305,6 +382,11 @@ export default function AudioManager({ children }: { children: React.ReactNode }
       // Need to pause the audio
       if (!backgroundMusicRef.current.paused) {
         backgroundMusicRef.current.pause();
+        
+        // Update MediaSession API state
+        if ('mediaSession' in navigator) {
+          navigator.mediaSession.playbackState = 'paused';
+        }
       }
     }
     
@@ -319,6 +401,36 @@ export default function AudioManager({ children }: { children: React.ReactNode }
     const wasPlaying = isPlaying;
     if (backgroundMusicRef.current && isPlaying) {
       backgroundMusicRef.current.pause();
+      
+      // Update MediaSession to show we're playing a different audio
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: 'Easter Egg Sound',
+          artist: 'Next.js Twilight',
+          artwork: [
+            { src: '/logo.png', sizes: '512x512', type: 'image/png' }
+          ]
+        });
+        
+        // Create a temporary handler just for the Easter egg sound
+        const easterEggPauseHandler = () => {
+          if (easterEggSoundRef.current && !easterEggSoundRef.current.paused) {
+            stopEasterEggSound(false);
+          }
+        };
+        
+        // Store original handlers to restore later
+        const originalPlayHandler = mediaSessionPlayHandlerRef.current;
+        const originalPauseHandler = mediaSessionPauseHandlerRef.current;
+        
+        // Set Easter egg specific handlers
+        navigator.mediaSession.setActionHandler('pause', easterEggPauseHandler);
+        
+        // Store the Easter egg handlers for cleanup
+        mediaSessionPauseHandlerRef.current = easterEggPauseHandler;
+        
+        navigator.mediaSession.playbackState = 'playing';
+      }
     }
 
     try {
@@ -362,12 +474,58 @@ export default function AudioManager({ children }: { children: React.ReactNode }
           if (!isMuted) easterEggSoundRef.current.volume = 1.0; // Reset volume if not muted
           clearInterval(fadeInterval);
           resumeBackgroundMusic();
+          
+          // Restore MediaSession to background music after easter egg sound stops
+          restoreBackgroundMusicMediaSession();
         }
       }, 50);
     } else {
       easterEggSoundRef.current.pause();
       easterEggSoundRef.current.currentTime = 0;
       resumeBackgroundMusic();
+      
+      // Restore MediaSession to background music after easter egg sound stops
+      restoreBackgroundMusicMediaSession();
+    }
+  };
+  
+  // Helper function to restore MediaSession for background music
+  const restoreBackgroundMusicMediaSession = () => {
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: 'Lofi Beats',
+        artist: 'Next.js Twilight',
+        album: 'Background Music',
+        artwork: [
+          { src: '/logo.png', sizes: '512x512', type: 'image/png' }
+        ]
+      });
+      
+      // Restore the original MediaSession handlers
+      if (mediaSessionPlayHandlerRef.current && mediaSessionPauseHandlerRef.current) {
+        navigator.mediaSession.setActionHandler('play', mediaSessionPlayHandlerRef.current);
+        navigator.mediaSession.setActionHandler('pause', mediaSessionPauseHandlerRef.current);
+      } else {
+        // Fallback if refs are not available
+        navigator.mediaSession.setActionHandler('play', () => {
+          if (backgroundMusicRef.current && backgroundMusicRef.current.paused) {
+            togglePlayPause();
+          }
+        });
+        
+        navigator.mediaSession.setActionHandler('pause', () => {
+          if (backgroundMusicRef.current && !backgroundMusicRef.current.paused) {
+            togglePlayPause();
+          }
+        });
+      }
+      
+      // Update playback state based on actual audio element state
+      if (backgroundMusicRef.current) {
+        navigator.mediaSession.playbackState = backgroundMusicRef.current.paused ? 'paused' : 'playing';
+      } else {
+        navigator.mediaSession.playbackState = 'paused';
+      }
     }
   };
 
@@ -391,11 +549,21 @@ export default function AudioManager({ children }: { children: React.ReactNode }
 
       const playPromise = backgroundMusicRef.current.play();
       if (playPromise !== undefined) {
-        playPromise.catch(e => {
+        playPromise.then(() => {
+          // Update MediaSession state on successful playback resumption
+          if ('mediaSession' in navigator) {
+            navigator.mediaSession.playbackState = 'playing';
+          }
+        }).catch(e => {
           if (e.name !== 'AbortError') {
             console.error("Background music resume failed:", e);
             // Update state if playback failed
             setIsPlaying(false);
+            
+            // Update MediaSession state on failure
+            if ('mediaSession' in navigator) {
+              navigator.mediaSession.playbackState = 'paused';
+            }
           }
         });
       }
@@ -404,6 +572,11 @@ export default function AudioManager({ children }: { children: React.ReactNode }
         console.error("Background music resume error:", e);
         // Update state if playback failed
         setIsPlaying(false);
+        
+        // Update MediaSession state on error
+        if ('mediaSession' in navigator) {
+          navigator.mediaSession.playbackState = 'paused';
+        }
       }
     }
   };

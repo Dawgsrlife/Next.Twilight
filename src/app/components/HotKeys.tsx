@@ -171,7 +171,7 @@ export default function HotKeys() {
 
   const buttonPosition = "right-8";
   const getPanelClassName = () => {
-    if (musicPlayerOpen) return "bottom-64 right-8";
+    if (musicPlayerOpen) return "bottom-72 right-8";
     if (musicButtonVisible && !musicPlayerOpen) return "bottom-24 right-8";
     return "bottom-8 right-8";
   };

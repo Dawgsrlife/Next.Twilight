@@ -260,6 +260,7 @@ This project includes a complete audio management system for an enhanced user ex
   - Toggle music player with CTRL+J
   - Toggle keyboard shortcuts with CTRL+K or /
   - ESC key closes popups in order (last opened closes first)
+- **OS Media Controls**: Support for media keys on keyboards and OS media controls (play/pause)
 - **Music Player**: Beautiful popup player with real-time audio visualization and live waveform display
 - **Dedicated Player Button**: Quick access to the music player via a dedicated button next to the keyboard shortcuts
 - **Smart UI Positioning**: Interface elements reposition themselves to avoid overlap
