@@ -65,6 +65,7 @@ export default function AudioManager({ children }: { children: React.ReactNode }
     isPlayingRef.current = isPlaying;
   }, [isMuted, isPlaying]);
 
+   
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -297,6 +298,7 @@ export default function AudioManager({ children }: { children: React.ReactNode }
   };
 
   // Handle mute state changes - affects ALL audio
+   
   useEffect(() => {
     if (!backgroundMusicRef.current || !easterEggSoundRef.current) return;
 
