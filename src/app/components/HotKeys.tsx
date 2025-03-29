@@ -5,20 +5,114 @@ import { useTheme } from './ThemeProvider';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useAudio } from './AudioManager';
+import { musicPopupClosedEvent, requestCloseAllPopupsEvent } from './ui/MusicPopup';
+
+// Custom event for toggling music player
+export const toggleMusicPlayerEvent = new CustomEvent('toggleMusicPlayer');
+
+// Create stack for tracking open popups
+const popupStack: string[] = [];
 
 export default function HotKeys() {
   const { toggleTheme } = useTheme();
   const { toggleMute, isMuted } = useAudio();
   const router = useRouter();
   const [showHotkeys, setShowHotkeys] = useState(false);
+  const [musicPlayerOpen, setMusicPlayerOpen] = useState(false);
+  const [musicButtonVisible, setMusicButtonVisible] = useState(true);
+  
+  // Function to toggle music player via event
+  const triggerMusicPlayerToggle = () => {
+    document.dispatchEvent(toggleMusicPlayerEvent);
+  };
+  
+  // Track popup states for layering
+  useEffect(() => {
+    // Update the popup stack when hotkeys panel state changes
+    const updateHotkeysInStack = (isOpen: boolean) => {
+      if (isOpen) {
+        if (!popupStack.includes('hotkeys')) {
+          popupStack.push('hotkeys');
+        }
+      } else {
+        const index = popupStack.indexOf('hotkeys');
+        if (index > -1) {
+          popupStack.splice(index, 1);
+        }
+      }
+    };
+    
+    // Update local state and dispatch event for other components
+    const updateShowHotkeys = (value: boolean) => {
+      setShowHotkeys(value);
+      updateHotkeysInStack(value);
+      document.dispatchEvent(new CustomEvent('hotkeysStateChanged', { detail: value }));
+    };
+    
+    // Listen for music player state changes
+    const handleMusicPlayerState = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      setMusicPlayerOpen(customEvent.detail);
+      
+      if (customEvent.detail) {
+        if (!popupStack.includes('musicPlayer')) {
+          popupStack.push('musicPlayer');
+        }
+      } else {
+        const index = popupStack.indexOf('musicPlayer');
+        if (index > -1) {
+          popupStack.splice(index, 1);
+        }
+      }
+    };
+    
+    // Handle music player closed event
+    const handleMusicPlayerClosed = () => {
+      setMusicPlayerOpen(false);
+      const index = popupStack.indexOf('musicPlayer');
+      if (index > -1) {
+        popupStack.splice(index, 1);
+      }
+    };
+    
+    // Check for music player button visibility
+    const checkMusicButtonVisibility = () => {
+      const musicButton = document.querySelector('[title^="Show music player"]');
+      setMusicButtonVisible(!!musicButton);
+    };
+    
+    // Set initial state
+    updateHotkeysInStack(showHotkeys);
+    checkMusicButtonVisibility();
+    
+    // Set up a mutation observer to watch for music button presence
+    const observer = new MutationObserver(() => {
+      checkMusicButtonVisibility();
+    });
+    
+    observer.observe(document.body, { childList: true, subtree: true });
+    
+    // Add event listeners
+    document.addEventListener('musicPopupStateChanged', handleMusicPlayerState);
+    document.addEventListener('musicPopupClosed', handleMusicPlayerClosed);
+    
+    // Cleanup
+    return () => {
+      document.removeEventListener('musicPopupStateChanged', handleMusicPlayerState);
+      document.removeEventListener('musicPopupClosed', handleMusicPlayerClosed);
+      observer.disconnect();
+    };
+  }, [showHotkeys]);
   
   // Hotkey mappings and descriptions
   const hotkeys = [
     { key: "d", ctrlKey: true, description: "Toggle dark/light mode", action: toggleTheme },
     { key: "m", ctrlKey: true, description: "Toggle audio mute", action: toggleMute },
     { key: " ", ctrlKey: false, description: "Play/pause audio", action: toggleMute },
+    { key: "j", ctrlKey: true, description: "Toggle music player", action: triggerMusicPlayerToggle },
+    { key: "k", ctrlKey: true, description: "Toggle keyboard shortcuts", action: () => toggleHotkeys() },
     { key: "g", ctrlKey: true, description: "Open GitHub repository", action: () => window.open("https://github.com/Dawgsrlife/nextjs-typescript-starter", "_blank") },
-    { key: "p", ctrlKey: true, description: "Open GitHub profile", action: () => window.open("https://github.com/Dawgsrlife", "_blank") },
+    { key: "h", ctrlKey: true, description: "Open GitHub profile", action: () => window.open("https://github.com/Dawgsrlife", "_blank") },
     { key: "1", ctrlKey: true, description: "Go to Home page", action: () => router.push("/") },
     { key: "2", ctrlKey: true, description: "Go to TypeScript page", action: () => router.push("/typescript") },
     { key: "3", ctrlKey: true, description: "Go to Next.js page", action: () => router.push("/next-js") },
@@ -26,14 +120,54 @@ export default function HotKeys() {
     { key: "5", ctrlKey: true, description: "Go to Framer Motion page", action: () => router.push("/framer-motion") },
     { key: "6", ctrlKey: true, description: "Go to Todo page", action: () => router.push("/todo") },
     { key: "7", ctrlKey: true, description: "Go to About page", action: () => router.push("/about") },
-    { key: "/", ctrlKey: false, description: "Show/hide hotkey reference", action: () => setShowHotkeys(prev => !prev) },
+    { key: "/", ctrlKey: false, description: "Show/hide hotkey reference", action: () => toggleHotkeys() },
   ];
+
+  // Toggle hotkeys panel
+  const toggleHotkeys = () => {
+    const newState = !showHotkeys;
+    setShowHotkeys(newState);
+    
+    document.dispatchEvent(new CustomEvent('hotkeysStateChanged', { detail: newState }));
+    
+    if (newState) {
+      if (!popupStack.includes('hotkeys')) {
+        popupStack.push('hotkeys');
+      }
+    } else {
+      const index = popupStack.indexOf('hotkeys');
+      if (index > -1) {
+        popupStack.splice(index, 1);
+      }
+    }
+  };
+  
+  // Close the top-most popup when Escape is pressed
+  const closeTopPopup = () => {
+    if (popupStack.length === 0) return;
+    
+    const topPopup = popupStack.pop();
+    
+    if (topPopup === 'hotkeys') {
+      setShowHotkeys(false);
+      document.dispatchEvent(new CustomEvent('hotkeysStateChanged', { detail: false }));
+    } else if (topPopup === 'musicPlayer') {
+      document.dispatchEvent(requestCloseAllPopupsEvent);
+    }
+  };
 
   // Set up event listeners for keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Don't trigger hotkeys when typing in input elements
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+      
+      // Handle Escape key for closing popups in stack order
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeTopPopup();
         return;
       }
       
@@ -58,14 +192,7 @@ export default function HotKeys() {
       // Toggle hotkey display with '/' or close with Escape key
       if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
-        setShowHotkeys(prev => !prev);
-        return;
-      }
-      
-      // Close hotkey panel with Escape key only if it's open
-      if (e.key === 'Escape' && showHotkeys) {
-        e.preventDefault();
-        setShowHotkeys(false);
+        toggleHotkeys();
         return;
       }
       
@@ -82,22 +209,42 @@ export default function HotKeys() {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [hotkeys, toggleTheme, toggleMute, router, showHotkeys]);
+  }, [hotkeys, toggleTheme, toggleMute, router]);
+
+  // Calculate button and panel position based on music player state
+  const buttonPosition = "right-8"; // Keep button position fixed
+  
+  // Panel positioning:
+  // - When music player is open: position above music player (bottom-64)
+  // - When music button is visible but player is closed: position above music button (bottom-24)
+  // - Otherwise: position at standard location (bottom-8)
+  const getPanelClassName = () => {
+    if (musicPlayerOpen) {
+      return "bottom-64 right-8"; // Above open music player
+    } else if (musicButtonVisible && !musicPlayerOpen) {
+      return "bottom-24 right-8"; // Above music toggle button
+    } else {
+      return "bottom-8 right-8"; // Standard position
+    }
+  };
+  
+  const panelClassName = getPanelClassName();
 
   return (
     <AnimatePresence>
       {showHotkeys && (
         <motion.div 
-          className="fixed bottom-8 right-8 z-50 w-80 bg-[rgb(var(--card))] shadow-lg rounded-lg border border-[rgb(var(--border))]"
+          className={`fixed z-50 w-80 bg-[rgb(var(--card))] shadow-lg rounded-lg border border-[rgb(var(--border))] ${panelClassName}`}
           initial={{ opacity: 0, y: 20, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.95 }}
           transition={{ duration: 0.2 }}
+          layout
         >
           <div className="p-4 border-b border-[rgb(var(--border))] flex justify-between items-center">
             <h3 className="font-medium">Keyboard Shortcuts</h3>
             <button 
-              onClick={() => setShowHotkeys(false)}
+              onClick={toggleHotkeys}
               className="p-1 rounded-md hover:bg-[rgb(var(--muted))] transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -130,20 +277,21 @@ export default function HotKeys() {
           </div>
           
           <div className="p-3 bg-[rgb(var(--muted))] text-[rgb(var(--muted-foreground))] text-xs rounded-b-lg">
-            Press <kbd className="px-1 py-0.5 bg-[rgb(var(--background))] rounded border border-[rgb(var(--border))]">/</kbd> to toggle this panel
+            Press <kbd className="px-1 py-0.5 bg-[rgb(var(--background))] rounded border border-[rgb(var(--border))]">/</kbd> or <kbd className="px-1 py-0.5 bg-[rgb(var(--background))] rounded border border-[rgb(var(--border))]">CTRL+K</kbd> to toggle this panel
           </div>
         </motion.div>
       )}
       
       {!showHotkeys && (
         <motion.button
-          className="fixed bottom-8 right-8 z-50 p-3 bg-[rgb(var(--card))] rounded-full shadow-md border border-[rgb(var(--border))] hover:bg-[rgb(var(--muted))] transition-colors"
-          onClick={() => setShowHotkeys(true)}
+          className={`fixed bottom-8 z-50 p-3 bg-[rgb(var(--card))] rounded-full shadow-md border border-[rgb(var(--border))] hover:bg-[rgb(var(--muted))] transition-colors ${buttonPosition}`}
+          onClick={toggleHotkeys}
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.9 }}
           whileHover={{ scale: 1.05 }}
           title="Show keyboard shortcuts"
+          layout
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
