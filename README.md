@@ -4,6 +4,24 @@ A beautiful tutorial and playground repository designed for learning and experim
 
 [![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-blue?style=flat-square)](https://github.com/Dawgsrlife/nextjs-typescript-starter)
 
+## 📱 Demo
+
+<p align="center">
+  <a href="https://i.imgur.com/ePXIOzI.mp4" target="_blank">
+    <img src="https://i.imgur.com/ePXIOzI.gif" alt="Demo Overview" width="70%">
+    <br>
+    <em>Overall Demo</em>
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://i.imgur.com/tvOwlrp.mp4" target="_blank">
+    <img src="https://i.imgur.com/tvOwlrp.gif" alt="Framer Motion UI Demo" width="70%">
+    <br>
+    <em>Framer Motion UI Possibilities</em>
+  </a>
+</p>
+
 ---
 
 ## ✨ Features
@@ -65,7 +83,7 @@ pnpm install
 
 3. Start the development server
 ```
-pnpm run dev
+pnpm dev
 ```
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser.
@@ -100,8 +118,16 @@ This project features a beautiful twilight-inspired color scheme with smooth tra
 ### Light Mode
 Soft light backgrounds with subtle purple accents create a clean, professional look.
 
+<p align="center">
+  <img src="/public/project_screenshots/Home Page, light.png" alt="Light Mode" width="80%">
+</p>
+
 ### Dark Mode
 Rich deep blues and purples provide a comfortable reading experience with reduced eye strain.
+
+<p align="center">
+  <img src="/public/project_screenshots/Home Page, dark.png" alt="Dark Mode" width="80%">
+</p>
 
 ---
 
@@ -124,6 +150,10 @@ When triggered, you'll hear delightful "chicks_cheeps" sounds accompanying a vib
 - Theme transition effects
 - Staggered animations
 
+<p align="center">
+  <img src="/public/project_screenshots/About Page, dark.png" alt="About Page with Animations" width="80%">
+</p>
+
 ---
 
 ## 📚 Learning Goals
@@ -134,6 +164,50 @@ When triggered, you'll hear delightful "chicks_cheeps" sounds accompanying a vib
 - Create complex animations with Framer Motion
 - Implement responsive designs
 - Structure a professional frontend project
+
+---
+
+## 💻 Project Screenshots
+
+### Todo Application
+Manage tasks with a beautiful interface and animations
+
+<p align="center">
+  <img src="/public/project_screenshots/TODO Tasks, dark.png" alt="TODO Tasks" width="80%">
+</p>
+
+<p align="center">
+  <img src="/public/project_screenshots/TODO Active Tasks, dark.png" alt="TODO Active Tasks" width="80%">
+</p>
+
+<p align="center">
+  <img src="/public/project_screenshots/TODO Partially Complete Tasks, dark.png" alt="TODO Partially Complete Tasks" width="80%">
+</p>
+
+### Music and Hotkeys Interface
+Intuitive controls with keyboard shortcuts
+
+<p align="center">
+  <img src="/public/project_screenshots/TypeScript Page, light + with music and hotkeys.png" alt="TypeScript Page with Music and Hotkeys" width="80%">
+</p>
+
+<p align="center">
+  <img src="/public/project_screenshots/Popups, dark.png" alt="Popups Interface" width="80%">
+</p>
+
+### Team Page
+Beautiful presentation of team members
+
+<p align="center">
+  <img src="/public/project_screenshots/Team, dark.png" alt="Team Page" width="80%">
+</p>
+
+### Tailwind Components
+Reusable UI components built with Tailwind CSS
+
+<p align="center">
+  <img src="/public/project_screenshots/Tailwind Components, light.png" alt="Tailwind Components" width="80%">
+</p>
 
 ---
 
