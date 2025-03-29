@@ -10,8 +10,10 @@
   :root {
     --background: 255, 255, 255;
     --foreground: 31, 31, 35;
-    --card: 252, 250, 255;
+    --card: 253, 252, 255;
     --card-foreground: 31, 31, 35;
+    --card-gradient-from: 253, 252, 255;
+    --card-gradient-to: 255, 255, 255;
     --popover: 255, 255, 255;
     --popover-foreground: 31, 31, 35;
     --primary: 113, 91, 230;
@@ -35,6 +37,8 @@
     --foreground: 242, 242, 242;
     --card: 36, 36, 41;
     --card-foreground: 242, 242, 242;
+    --card-gradient-from: 88, 74, 130, 0.6;
+    --card-gradient-to: 49, 46, 129, 0.6;
     --popover: 36, 36, 41;
     --popover-foreground: 242, 242, 242;
     --primary: 138, 92, 246;

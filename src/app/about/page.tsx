@@ -133,7 +133,7 @@ function TechnologySection() {
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <Card title="Next.js" className="h-full bg-[rgb(var(--card))] border border-[rgb(var(--border))] shadow-sm hover:shadow-md transition-shadow dark:bg-gradient-to-br dark:from-purple-950/50 dark:to-indigo-950/50">
+            <Card title="Next.js" className="h-full bg-gradient-to-br from-[rgba(var(--card-gradient-from))] to-[rgba(var(--card-gradient-to))] border border-[rgb(var(--border))] shadow-sm hover:shadow-md transition-shadow">
               <p className="mb-4">
                 The React framework for production that enables features like server-side rendering, static site generation, and API routes. Next.js 14 with the App Router provides an optimal developer experience.
               </p>
@@ -151,7 +151,7 @@ function TechnologySection() {
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
             transition={{ duration: 0.8, delay: 0.3 }}
           >
-            <Card title="TypeScript" className="h-full bg-[rgb(var(--card))] border border-[rgb(var(--border))] shadow-sm hover:shadow-md transition-shadow dark:bg-gradient-to-br dark:from-purple-950/50 dark:to-indigo-950/50">
+            <Card title="TypeScript" className="h-full bg-gradient-to-br from-[rgba(var(--card-gradient-from))] to-[rgba(var(--card-gradient-to))] border border-[rgb(var(--border))] shadow-sm hover:shadow-md transition-shadow">
               <p className="mb-4">
                 A strongly typed programming language that builds on JavaScript, giving you better tooling at any scale. TypeScript enhances code quality and developer experience through its robust type system.
               </p>
@@ -169,7 +169,7 @@ function TechnologySection() {
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            <Card title="Tailwind CSS" className="h-full bg-[rgb(var(--card))] border border-[rgb(var(--border))] shadow-sm hover:shadow-md transition-shadow dark:bg-gradient-to-br dark:from-purple-950/50 dark:to-indigo-950/50">
+            <Card title="Tailwind CSS" className="h-full bg-gradient-to-br from-[rgba(var(--card-gradient-from))] to-[rgba(var(--card-gradient-to))] border border-[rgb(var(--border))] shadow-sm hover:shadow-md transition-shadow">
               <p className="mb-4">
                 A utility-first CSS framework that allows for rapid UI development without sacrificing customization. Tailwind makes it easy to build responsive, consistent designs through composition.
               </p>
@@ -187,7 +187,7 @@ function TechnologySection() {
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
             transition={{ duration: 0.8, delay: 0.5 }}
           >
-            <Card title="Framer Motion" className="h-full bg-[rgb(var(--card))] border border-[rgb(var(--border))] shadow-sm hover:shadow-md transition-shadow dark:bg-gradient-to-br dark:from-purple-950/50 dark:to-indigo-950/50">
+            <Card title="Framer Motion" className="h-full bg-gradient-to-br from-[rgba(var(--card-gradient-from))] to-[rgba(var(--card-gradient-to))] border border-[rgb(var(--border))] shadow-sm hover:shadow-md transition-shadow">
               <p className="mb-4">
                 A production-ready animation library for React that makes it easy to create polished animations and gestures. Framer Motion enables sophisticated motion design with a simple declarative API.
               </p>
@@ -268,7 +268,7 @@ function TeamSection() {
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
               transition={{ duration: 0.8, delay: 0.2 + index * 0.1 }}
             >
-              <Card className="h-full bg-[rgb(var(--card))] border border-[rgb(var(--border))] shadow-sm hover:shadow-md transition-shadow dark:bg-gradient-to-br dark:from-purple-900/70 dark:to-indigo-900/70">
+              <Card className="h-full bg-gradient-to-br from-[rgba(var(--card-gradient-from))] to-[rgba(var(--card-gradient-to))] border border-[rgb(var(--border))] shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
                   <div className="w-24 h-24 rounded-full overflow-hidden flex-shrink-0 border-2 border-purple-500 dark:border-purple-400">
                     <img 
@@ -316,7 +316,7 @@ function ContactSection() {
           initial={{ opacity: 0, y: 50 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="bg-[rgb(var(--card))] border border-[rgb(var(--border))] p-4 sm:p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow dark:bg-gradient-to-br dark:from-purple-900/70 dark:to-indigo-900/70"
+          className="bg-gradient-to-br from-[rgba(var(--card-gradient-from))] to-[rgba(var(--card-gradient-to))] border border-[rgb(var(--border))] p-4 sm:p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
