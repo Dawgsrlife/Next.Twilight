@@ -338,18 +338,56 @@ panel.add(button, BorderLayout.CENTER);`}
               </Card>
             </div>
           </div>
+        </motion.div>
 
-          <div className="mt-8 flex justify-center">
-            <Button 
-              variant="primary"
-              size="lg"
-              onClick={() => {
-                window.open("https://tailwindcss.com/docs", "_blank");
-              }}
-            >
-              Learn More About Tailwind CSS
-            </Button>
+        <motion.div
+          variants={fadeInUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="mb-12 mt-12"
+        >
+          <h2 className="text-2xl font-bold mb-4">Tailwind Components</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <Card title="Buttons">
+              <div className="flex flex-col space-y-4">
+                <Button className="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 w-fit">Primary Button</Button>
+                <Button className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 w-fit">Success Button</Button>
+                <Button className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 w-fit">Danger Button</Button>
+              </div>
+            </Card>
+            <Card title="Alerts">
+              <div className="space-y-4">
+                <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative" role="alert">
+                  <strong className="font-bold mr-2">Info!</strong>
+                  <span>This is an informational alert.</span>
+                </div>
+                <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative" role="alert">
+                  <strong className="font-bold mr-2">Warning!</strong>
+                  <span>This is a warning alert.</span>
+                </div>
+              </div>
+            </Card>
           </div>
+        </motion.div>
+
+        <motion.div
+          variants={fadeInUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="mt-12 flex justify-center"
+        >
+          <Button 
+            variant="primary"
+            size="lg"
+            onClick={() => {
+              window.open("https://tailwindcss.com/docs", "_blank");
+            }}
+          >
+            Learn More About Tailwind CSS
+          </Button>
         </motion.div>
       </Section>
     </motion.main>
