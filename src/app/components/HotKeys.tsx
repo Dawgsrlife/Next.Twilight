@@ -17,121 +17,82 @@ export const popupStack: string[] = [];
 
 export default function HotKeys() {
   const { toggleTheme } = useTheme();
-  const { toggleMute } = useAudio();
+  const { toggleMute, isMuted } = useAudio();
   const router = useRouter();
   const [showHotkeys, setShowHotkeys] = useState(false);
-  const [musicPlayerOpen, setMusicPlayerOpen] = useState(true); // Default to true since MusicPopup starts open
+  const [musicPlayerOpen, setMusicPlayerOpen] = useState(true);
   const [musicButtonVisible, setMusicButtonVisible] = useState(true);
-  
-  // Function to toggle music player via event
+
   const triggerMusicPlayerToggle = useCallback(() => {
     document.dispatchEvent(toggleMusicPlayerEvent);
   }, []);
-  
-  // Track popup states for layering
+
   useEffect(() => {
-    // Initialize music player in the popup stack since it starts open
     if (!popupStack.includes('musicPlayer')) {
       popupStack.push('musicPlayer');
     }
-    
-    // Listen for music player state changes
+
     const handleMusicPlayerState = (e: Event) => {
       const customEvent = e as CustomEvent;
       setMusicPlayerOpen(customEvent.detail);
-      
       if (customEvent.detail) {
-        if (!popupStack.includes('musicPlayer')) {
-          popupStack.push('musicPlayer');
-        }
+        if (!popupStack.includes('musicPlayer')) popupStack.push('musicPlayer');
       } else {
         const index = popupStack.indexOf('musicPlayer');
-        if (index > -1) {
-          popupStack.splice(index, 1);
-        }
+        if (index > -1) popupStack.splice(index, 1);
       }
     };
-    
-    // Handle music player closed event
+
     const handleMusicPlayerClosed = () => {
       setMusicPlayerOpen(false);
       const index = popupStack.indexOf('musicPlayer');
-      if (index > -1) {
-        popupStack.splice(index, 1);
-      }
+      if (index > -1) popupStack.splice(index, 1);
     };
-    
-    // Check for music player button visibility
+
     const checkMusicButtonVisibility = () => {
       const musicButton = document.querySelector('[title^="Show music player"]');
       setMusicButtonVisible(!!musicButton);
     };
-    
-    // Check for hotkeys panel visibility
+
     const updateHotkeysInStack = (isOpen: boolean) => {
       if (isOpen) {
-        if (!popupStack.includes('hotkeys')) {
-          popupStack.push('hotkeys');
-        }
+        if (!popupStack.includes('hotkeys')) popupStack.push('hotkeys');
       } else {
         const index = popupStack.indexOf('hotkeys');
-        if (index > -1) {
-          popupStack.splice(index, 1);
-        }
+        if (index > -1) popupStack.splice(index, 1);
       }
     };
-    
-    // Setup initial state
+
     updateHotkeysInStack(showHotkeys);
     checkMusicButtonVisibility();
-    
-    // Add event listeners
+
     document.addEventListener('musicPopupStateChanged', handleMusicPlayerState);
     document.addEventListener('musicPopupClosed', handleMusicPlayerClosed);
-    
-    // Set up a mutation observer to watch for music button presence
-    const observer = new MutationObserver(() => {
-      checkMusicButtonVisibility();
-    });
-    
+
+    const observer = new MutationObserver(() => checkMusicButtonVisibility());
     observer.observe(document.body, { childList: true, subtree: true });
-    
-    // Cleanup
+
     return () => {
       document.removeEventListener('musicPopupStateChanged', handleMusicPlayerState);
       document.removeEventListener('musicPopupClosed', handleMusicPlayerClosed);
       observer.disconnect();
     };
   }, [showHotkeys]);
-  
-  // Toggle hotkeys panel
+
   const toggleHotkeys = useCallback(() => {
     const newState = !showHotkeys;
     setShowHotkeys(newState);
-    
-    // Create a new event with the current state
-    const event = new CustomEvent('hotkeysStateChanged', { detail: newState });
-    document.dispatchEvent(event);
-    
+    document.dispatchEvent(new CustomEvent('hotkeysStateChanged', { detail: newState }));
     if (newState) {
-      // Always ensure hotkeys is at the top of the stack when opened
-      
-      // Remove hotkeys from stack if it's already there (to avoid duplicates)
       const index = popupStack.indexOf('hotkeys');
-      if (index > -1) {
-        popupStack.splice(index, 1);
-      }
-      // Add to top of stack
+      if (index > -1) popupStack.splice(index, 1);
       popupStack.push('hotkeys');
     } else {
       const index = popupStack.indexOf('hotkeys');
-      if (index > -1) {
-        popupStack.splice(index, 1);
-      }
+      if (index > -1) popupStack.splice(index, 1);
     }
   }, [showHotkeys]);
-  
-  // Hotkey mappings and descriptions
+
   const hotkeys = useMemo(() => [
     { key: "d", ctrlKey: true, description: "Toggle dark/light mode", action: toggleTheme },
     { key: "m", ctrlKey: true, description: "Toggle audio mute", action: toggleMute },
@@ -150,12 +111,9 @@ export default function HotKeys() {
     { key: "/", ctrlKey: false, description: "Show/hide hotkey reference", action: () => toggleHotkeys() },
   ], [toggleTheme, toggleMute, router, toggleHotkeys, triggerMusicPlayerToggle]);
 
-  // Close the top-most popup when Escape is pressed
   const closeTopPopup = () => {
     if (popupStack.length === 0) return;
-    
     const topPopup = popupStack.pop();
-    
     if (topPopup === 'hotkeys') {
       setShowHotkeys(false);
       document.dispatchEvent(new CustomEvent('hotkeysStateChanged', { detail: false }));
@@ -164,47 +122,37 @@ export default function HotKeys() {
     }
   };
 
-  // Set up event listeners for keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't trigger hotkeys when typing in input elements
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
-        return;
-      }
-      
-      // Handle Escape key for closing popups in stack order
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
       if (e.key === 'Escape') {
         e.preventDefault();
         closeTopPopup();
         return;
       }
-      
-      // Handle Space bar for play/pause
+
       if (e.key === ' ' && !e.ctrlKey && !e.metaKey) {
-        // Only capture space if we're not in an interactive element
         const activeElement = document.activeElement;
-        const isInteractive = 
-          activeElement instanceof HTMLButtonElement || 
+        const isInteractive = activeElement instanceof HTMLButtonElement || 
           activeElement instanceof HTMLAnchorElement ||
           activeElement instanceof HTMLTextAreaElement ||
           activeElement instanceof HTMLInputElement ||
           activeElement?.hasAttribute('role');
-          
+
         if (!isInteractive) {
-          e.preventDefault(); // Prevent page scroll on space
+          e.preventDefault();
           toggleMute();
           return;
         }
       }
-      
-      // Toggle hotkey display with '/' or close with Escape key
+
       if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
         toggleHotkeys();
         return;
       }
-      
-      // Handle other hotkeys
+
       for (const hotkey of hotkeys) {
         if (e.key.toLowerCase() === hotkey.key.toLowerCase() && 
             ((hotkey.ctrlKey && (e.ctrlKey || e.metaKey)) || (!hotkey.ctrlKey && !e.ctrlKey && !e.metaKey))) {
@@ -219,23 +167,12 @@ export default function HotKeys() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [hotkeys, toggleTheme, toggleMute, router, toggleHotkeys]);
 
-  // Calculate button and panel position based on music player state
-  const buttonPosition = "right-8"; // Keep button position fixed
-  
-  // Panel positioning:
-  // - When music player is open: position above music player (bottom-64)
-  // - When music button is visible but player is closed: position above music button (bottom-24)
-  // - Otherwise: position at standard location (bottom-8)
+  const buttonPosition = "right-8";
   const getPanelClassName = () => {
-    if (musicPlayerOpen) {
-      return "bottom-64 right-8"; // Above open music player
-    } else if (musicButtonVisible && !musicPlayerOpen) {
-      return "bottom-24 right-8"; // Above music toggle button
-    } else {
-      return "bottom-8 right-8"; // Standard position
-    }
+    if (musicPlayerOpen) return "bottom-64 right-8";
+    if (musicButtonVisible && !musicPlayerOpen) return "bottom-24 right-8";
+    return "bottom-8 right-8";
   };
-  
   const panelClassName = getPanelClassName();
 
   return (
@@ -267,16 +204,10 @@ export default function HotKeys() {
                 <li key={index} className="flex items-start">
                   <div className="flex space-x-1 mr-3 mt-1">
                     {hotkey.ctrlKey && (
-                      <kbd className="px-2 py-1 text-xs font-semibold bg-[rgb(var(--muted))] rounded-md border border-[rgb(var(--border))]">
-                        CTRL
-                      </kbd>
+                      <kbd className="px-2 py-1 text-xs font-semibold bg-[rgb(var(--muted))] rounded-md border border-[rgb(var(--border))]">CTRL</kbd>
                     )}
-                    {hotkey.ctrlKey && (
-                      <span className="text-[rgb(var(--muted-foreground))] mx-1">+</span>
-                    )}
-                    <kbd className="px-2 py-1 text-xs font-semibold bg-[rgb(var(--muted))] rounded-md border border-[rgb(var(--border))]">
-                      {hotkey.key === " " ? "SPACE" : hotkey.key.toUpperCase()}
-                    </kbd>
+                    {hotkey.ctrlKey && (<span className="text-[rgb(var(--muted-foreground))] mx-1">+</span>)}
+                    <kbd className="px-2 py-1 text-xs font-semibold bg-[rgb(var(--muted))] rounded-md border border-[rgb(var(--border))]">{hotkey.key === " " ? "SPACE" : hotkey.key.toUpperCase()}</kbd>
                   </div>
                   <span className="text-sm">{hotkey.description}</span>
                 </li>
@@ -289,7 +220,6 @@ export default function HotKeys() {
           </div>
         </motion.div>
       )}
-      
       {!showHotkeys && (
         <motion.button
           className={`fixed bottom-8 z-50 p-3 bg-[rgb(var(--card))] rounded-full shadow-md border border-[rgb(var(--border))] hover:bg-[rgb(var(--muted))] transition-colors ${buttonPosition}`}
@@ -312,4 +242,4 @@ export default function HotKeys() {
       )}
     </AnimatePresence>
   );
-} 
+}
