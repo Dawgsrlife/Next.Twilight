@@ -17,7 +17,7 @@ export const popupStack: string[] = [];
 
 export default function HotKeys() {
   const { toggleTheme } = useTheme();
-  const { toggleMute } = useAudio();
+  const { toggleMute, togglePlayPause } = useAudio();
   const router = useRouter();
   const [showHotkeys, setShowHotkeys] = useState(false);
   const [musicPlayerOpen, setMusicPlayerOpen] = useState(true);
@@ -96,7 +96,7 @@ export default function HotKeys() {
   const hotkeys = useMemo(() => [
     { key: "d", ctrlKey: true, description: "Toggle dark/light mode", action: toggleTheme },
     { key: "m", ctrlKey: false, altKey: true, description: "Toggle audio mute", action: toggleMute },
-    { key: " ", ctrlKey: false, description: "Play/pause audio", action: toggleMute },
+    { key: " ", ctrlKey: false, description: "Play/pause music", action: togglePlayPause },
     { key: "j", ctrlKey: true, description: "Toggle music player", action: triggerMusicPlayerToggle },
     { key: "k", ctrlKey: true, description: "Toggle keyboard shortcuts", action: () => toggleHotkeys() },
     { key: "g", ctrlKey: true, description: "Open GitHub repository", action: () => window.open("https://github.com/Dawgsrlife/nextjs-typescript-starter", "_blank") },
@@ -109,7 +109,7 @@ export default function HotKeys() {
     { key: "6", ctrlKey: true, description: "Go to Todo page", action: () => router.push("/todo") },
     { key: "7", ctrlKey: true, description: "Go to About page", action: () => router.push("/about") },
     { key: "/", ctrlKey: false, description: "Show/hide hotkey reference", action: () => toggleHotkeys() },
-  ], [toggleTheme, toggleMute, router, toggleHotkeys, triggerMusicPlayerToggle]);
+  ], [toggleTheme, toggleMute, togglePlayPause, router, toggleHotkeys, triggerMusicPlayerToggle]);
 
   const closeTopPopup = () => {
     if (popupStack.length === 0) return;
@@ -142,7 +142,7 @@ export default function HotKeys() {
 
         if (!isInteractive) {
           e.preventDefault();
-          toggleMute();
+          togglePlayPause();
           return;
         }
       }
@@ -167,7 +167,7 @@ export default function HotKeys() {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [hotkeys, toggleTheme, toggleMute, router, toggleHotkeys]);
+  }, [hotkeys, toggleTheme, toggleMute, togglePlayPause, router, toggleHotkeys]);
 
   const buttonPosition = "right-8";
   const getPanelClassName = () => {

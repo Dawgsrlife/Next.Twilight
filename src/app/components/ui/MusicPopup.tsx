@@ -14,11 +14,13 @@ export const requestCloseAllPopupsEvent = new CustomEvent('requestCloseAllPopups
 let isFirstRender = true;
 
 export default function MusicPopup() {
-  const { isPlaying, isMuted, toggleMute, audioData } = useAudio();
+  const { isPlaying, isMuted, toggleMute, togglePlayPause, audioData } = useAudio();
   // Start with the popup open by default
   const [showPopup, setShowPopup] = useState(true);
   const [autoHide, setAutoHide] = useState(true);
-  const [muteToggleDetected, setMuteToggleDetected] = useState(false); // Track mute toggle events
+  const [muteToggleDetected, setMuteToggleDetected] = useState(false);
+  const [playPauseToggleDetected, setPlayPauseToggleDetected] = useState(false);
+  
   const trackInfo = {
     title: "Chill Lofi Beats",
     artist: "Next.js Twilight",
@@ -66,7 +68,7 @@ export default function MusicPopup() {
     }
   }, []);
   
-  // Listen for mute toggle events from AudioManager
+  // Listen for mute toggle events
   useEffect(() => {
     // Create a listener that will be triggered when mute state changes
     const handleMuteChange = () => {
@@ -85,14 +87,34 @@ export default function MusicPopup() {
       document.removeEventListener('audio-mute-toggled', handleMuteChange);
     };
   }, []);
+
+  // Listen for play/pause toggle events
+  useEffect(() => {
+    // Create a listener that will be triggered when play/pause state changes
+    const handlePlayPauseChange = () => {
+      setPlayPauseToggleDetected(true);
+      
+      // Reset the flag after a short delay to allow for future detections
+      setTimeout(() => {
+        setPlayPauseToggleDetected(false);
+      }, 100);
+    };
+    
+    // Listen for changes in the play/pause state
+    document.addEventListener('audio-playpause-toggled', handlePlayPauseChange);
+    
+    return () => {
+      document.removeEventListener('audio-playpause-toggled', handlePlayPauseChange);
+    };
+  }, []);
   
   // Show popup when music status changes, only for certain actions
-  // Specifically exclude showing the popup when triggered by ALT+M or spacebar (mute/play/pause)
   useEffect(() => {
     // Skip auto-show/hide for these conditions:
     // 1. If autoHide is disabled 
-    // 2. If mute toggle was detected (ALT+M or spacebar)
-    if (!autoHide || muteToggleDetected) return;
+    // 2. If mute toggle was detected (ALT+M)
+    // 3. If play/pause toggle was detected (spacebar)
+    if (!autoHide || muteToggleDetected || playPauseToggleDetected) return;
     
     // For music player visibility, we ONLY want to show the popup when:
     // - The user clicks the music player button
@@ -102,13 +124,7 @@ export default function MusicPopup() {
     // We specifically DON'T want the popup to appear when:
     // - The user presses ALT+M to mute/unmute
     // - The user presses spacebar to play/pause
-    
-    // Since we're already filtering out mute toggle events,
-    // there's no need to show the popup on status changes anymore
-    // Only the explicit toggle actions should show the popup
-    
-    // If we want to show the popup on initial mount, that's handled separately
-  }, [isPlaying, isMuted, autoHide, muteToggleDetected]);
+  }, [isPlaying, isMuted, autoHide, muteToggleDetected, playPauseToggleDetected]);
 
   // Update the popup stack when music popup state changes
   const updateMusicPopupInStack = useCallback((isOpen: boolean) => {
@@ -238,6 +254,19 @@ export default function MusicPopup() {
     ];
   }, [audioData]);
 
+  // Play/Pause Button 
+  const handlePlayPauseClick = () => {
+    // Directly trigger the togglePlayPause function from AudioManager
+    // and let its implementation handle the state sync logic
+    togglePlayPause();
+  };
+  
+  // Mute/Unmute Button
+  const handleMuteClick = () => {
+    // Directly trigger the toggleMute function from AudioManager
+    toggleMute();
+  };
+  
   // Fixed positions for popup and button
   const popupPosition = "bottom-24";
   const buttonPosition = "bottom-8";
@@ -262,7 +291,7 @@ export default function MusicPopup() {
               {/* Vinyl Album Cover Animation */}
               <motion.div 
                 className="h-14 w-14 rounded-md bg-gradient-to-br from-purple-900 via-violet-800 to-indigo-900 overflow-hidden flex items-center justify-center shadow-inner"
-                animate={{ rotate: 360 }}
+                animate={{ rotate: isPlaying && !isMuted ? 360 : 0 }}
                 transition={{ 
                   duration: 10, 
                   repeat: Infinity, 
@@ -307,32 +336,46 @@ export default function MusicPopup() {
                 
                 <p className="text-xs text-[rgb(var(--muted-foreground))] truncate">{trackInfo.artist}</p>
                 
-                {/* Status indicator */}
-                <div className="mt-1 flex items-center">
+                {/* Status indicators */}
+                <div className="mt-1 flex items-center justify-between">
+                  {/* Play/Pause status */}
                   <span className="text-xs font-medium flex items-center">
                     <motion.span 
-                      className={`inline-block w-2 h-2 rounded-full mr-1.5 ${!isMuted ? 'bg-green-500' : 'bg-red-500'}`}
-                      animate={!isMuted ? { scale: [1, 1.2, 1] } : {}}
+                      className={`inline-block w-2 h-2 rounded-full mr-1.5 ${isPlaying ? 'bg-green-500' : 'bg-yellow-500'}`}
+                      animate={isPlaying ? { scale: [1, 1.2, 1] } : {}}
                       transition={{ duration: 1.5, repeat: Infinity }}
                     />
-                    {!isMuted ? 'Playing' : 'Paused'}
+                    {isPlaying ? 'Playing' : 'Paused'}
                   </span>
                   
-                  {/* Keyboard hint */}
-                  <span className="text-xs text-[rgb(var(--muted-foreground))] ml-2">
-                    Press <kbd className="px-1 py-0.5 bg-[rgb(var(--muted))] rounded text-[10px] border border-[rgb(var(--border))]">Space</kbd> to toggle
+                  {/* Muted status */}
+                  <span className="text-xs font-medium flex items-center ml-2">
+                    <motion.span 
+                      className={`inline-block w-2 h-2 rounded-full mr-1.5 ${!isMuted ? 'bg-blue-500' : 'bg-red-500'}`}
+                    />
+                    {!isMuted ? 'Sound On' : 'Muted'}
+                  </span>
+                </div>
+                
+                <div className="mt-1 flex items-center justify-between">
+                  {/* Keyboard hints */}
+                  <span className="text-xs text-[rgb(var(--muted-foreground))]">
+                    <kbd className="px-1 py-0.5 bg-[rgb(var(--muted))] rounded text-[10px] border border-[rgb(var(--border))]">Space</kbd> play/pause
+                  </span>
+                  <span className="text-xs text-[rgb(var(--muted-foreground))]">
+                    <kbd className="px-1 py-0.5 bg-[rgb(var(--muted))] rounded text-[10px] border border-[rgb(var(--border))]">Alt+M</kbd> mute
                   </span>
                 </div>
                 
                 {/* Progress Dots */}
-                <div className="mt-1 flex items-center space-x-1">
+                <div className="mt-2 flex items-center space-x-1">
                   {[0, 1, 2, 3].map((i) => (
                     <motion.div 
                       key={i}
                       className={`w-1.5 h-1.5 rounded-full ${
                         i === beat ? 'bg-[rgb(var(--primary))]' : 'bg-[rgb(var(--muted))]'
                       }`}
-                      animate={i === beat && !isMuted ? { scale: [1, 1.5, 1] } : {}}
+                      animate={i === beat && isPlaying && !isMuted ? { scale: [1, 1.5, 1] } : {}}
                       transition={{ duration: 0.3 }}
                     />
                   ))}
@@ -380,27 +423,54 @@ export default function MusicPopup() {
                 ))}
               </div>
               
-              {/* Mute/Unmute Button */}
-              <motion.button
-                onClick={toggleMute}
-                className="p-2 rounded-full hover:bg-[rgb(var(--muted))] transition-colors"
-                whileTap={{ scale: 0.9 }}
-              >
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
-                  strokeWidth={1.5} 
-                  stroke="currentColor" 
-                  className="w-5 h-5"
+              {/* Playback Control Buttons */}
+              <div className="flex flex-col space-y-2">
+                {/* Mute/Unmute Button */}
+                <motion.button
+                  onClick={handleMuteClick}
+                  className="p-2 rounded-full hover:bg-[rgb(var(--muted))] transition-colors"
+                  whileTap={{ scale: 0.9 }}
+                  title={isMuted ? "Unmute" : "Mute"}
                 >
-                  {!isMuted ? (
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
-                  ) : (
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
-                  )}
-                </svg>
-              </motion.button>
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    strokeWidth={1.5} 
+                    stroke="currentColor" 
+                    className="w-5 h-5"
+                  >
+                    {!isMuted ? (
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
+                    ) : (
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 9.75L19.5 12m0 0l2.25 2.25M19.5 12l2.25-2.25M19.5 12l-2.25 2.25m-10.5-6l4.72-4.72a.75.75 0 011.28.531V19.94a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.506-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.395C2.806 8.757 3.63 8.25 4.51 8.25H6.75z" />
+                    )}
+                  </svg>
+                </motion.button>
+                
+                {/* Play/Pause Button */}
+                <motion.button
+                  onClick={handlePlayPauseClick}
+                  className="p-2 rounded-full hover:bg-[rgb(var(--muted))] transition-colors"
+                  whileTap={{ scale: 0.9 }}
+                  title={isPlaying ? "Pause" : "Play"}
+                >
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    strokeWidth={1.5} 
+                    stroke="currentColor" 
+                    className="w-5 h-5"
+                  >
+                    {!isPlaying ? (
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+                    ) : (
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
+                    )}
+                  </svg>
+                </motion.button>
+              </div>
             </div>
           </motion.div>
         )}
@@ -434,13 +504,21 @@ export default function MusicPopup() {
               <circle cx="12" cy="12" r="3"></circle>
               <path d="M12 19a7 7 0 1 0 0-14"></path>
             </svg>
-            {!isMuted && (
-              <motion.span 
-                className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full"
-                animate={{ scale: [1, 1.5, 1] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              />
-            )}
+            {/* Show indicators for both playing and unmuted state */}
+            <div className="absolute -top-1 -right-1 flex space-x-0.5">
+              {isPlaying && (
+                <motion.span 
+                  className="w-2 h-2 bg-green-500 rounded-full"
+                  animate={{ scale: [1, 1.5, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                />
+              )}
+              {!isMuted && isPlaying && (
+                <motion.span 
+                  className="w-2 h-2 bg-blue-500 rounded-full"
+                />
+              )}
+            </div>
           </motion.div>
         </motion.button>
       )}

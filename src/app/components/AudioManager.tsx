@@ -7,6 +7,7 @@ type AudioContextType = {
   isMuted: boolean;
   isPlaying: boolean;
   toggleMute: () => void;
+  togglePlayPause: () => void;
   playEasterEggSound: () => Promise<void>;
   stopEasterEggSound: (fadeOut?: boolean) => void;
   resumeBackgroundMusic: () => void;
@@ -18,6 +19,7 @@ const AudioContext = createContext<AudioContextType>({
   isMuted: false,
   isPlaying: false,
   toggleMute: () => {},
+  togglePlayPause: () => {},
   playEasterEggSound: async () => {},
   stopEasterEggSound: () => {},
   resumeBackgroundMusic: () => {},
@@ -26,6 +28,8 @@ const AudioContext = createContext<AudioContextType>({
 
 // Custom event for audio mute toggle
 export const audioMuteToggledEvent = new CustomEvent('audio-mute-toggled');
+// Custom event for play/pause toggle
+export const audioPlayPauseToggledEvent = new CustomEvent('audio-playpause-toggled');
 
 // Custom hook for using audio context
 export const useAudio = () => useContext(AudioContext);
@@ -54,7 +58,7 @@ export default function AudioManager({ children }: { children: React.ReactNode }
       easterEggSoundRef.current = new Audio('/sounds/chicks_cheeps.mp3');
       easterEggSoundRef.current.loop = false;
 
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      audioContextRef.current = new (window.AudioContext || (window as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext)();
       analyserRef.current = audioContextRef.current.createAnalyser();
       analyserRef.current.fftSize = 64;
 
@@ -68,20 +72,28 @@ export default function AudioManager({ children }: { children: React.ReactNode }
       easterEggSoundRef.current.load();
 
       if (backgroundMusicRef.current) {
+        // We need to add event listeners before attempting to play
+        // But they should not directly update state to avoid circular updates
         backgroundMusicRef.current.addEventListener('playing', () => {
-          setIsPlaying(true);
+          // Don't update React state from HTML audio events
+          // This just enables visualization when audio is playing
           startVisualization();
         });
 
         backgroundMusicRef.current.addEventListener('pause', () => {
-          setIsPlaying(false);
+          // Don't update React state from HTML audio events
+          // This just disables visualization when audio is paused
           stopVisualization();
         });
 
         backgroundMusicRef.current.addEventListener('ended', () => {
           if (backgroundMusicRef.current && !isMuted) {
             backgroundMusicRef.current.currentTime = 0;
-            backgroundMusicRef.current.play().catch(e => console.error('Fallback play failed:', e));
+            backgroundMusicRef.current.play().catch(e => {
+              if (e.name !== 'AbortError') {
+                console.error('Fallback play failed:', e);
+              }
+            });
           }
         });
       }
@@ -96,13 +108,15 @@ export default function AudioManager({ children }: { children: React.ReactNode }
 
           const playPromise = backgroundMusicRef.current.play();
           if (playPromise !== undefined) {
-            playPromise.catch(e => {
+            playPromise.then(() => {
+              setIsPlaying(true);
+            }).catch(e => {
               if (e.name === 'NotAllowedError') {
                 console.log("Auto-play prevented. User interaction needed to start audio.");
-                setIsMuted(true);
+                setIsPlaying(false);
               } else if (e.name !== 'AbortError') {
                 console.log("Audio playback error:", e);
-                setIsMuted(true);
+                setIsPlaying(false);
               }
             });
           }
@@ -110,14 +124,18 @@ export default function AudioManager({ children }: { children: React.ReactNode }
       }, 100);
 
       const attemptPlayOnInteraction = () => {
-        if (backgroundMusicRef.current && isMuted) {
-          setIsMuted(false);
-          backgroundMusicRef.current.play().catch(e => {
-            console.error("Play on interaction failed:", e);
-          });
-          document.removeEventListener('click', attemptPlayOnInteraction);
-          document.removeEventListener('keydown', attemptPlayOnInteraction);
-          document.removeEventListener('touchstart', attemptPlayOnInteraction);
+        if (backgroundMusicRef.current && !isPlaying && !isMuted) {
+          const playPromise = backgroundMusicRef.current.play();
+          if (playPromise !== undefined) {
+            playPromise.then(() => {
+              setIsPlaying(true);
+              document.removeEventListener('click', attemptPlayOnInteraction);
+              document.removeEventListener('keydown', attemptPlayOnInteraction);
+              document.removeEventListener('touchstart', attemptPlayOnInteraction);
+            }).catch(e => {
+              console.error("Play on interaction failed:", e);
+            });
+          }
         }
       };
 
@@ -189,40 +207,117 @@ export default function AudioManager({ children }: { children: React.ReactNode }
     setAudioData(null);
   };
 
+  // Handle mute state changes - affects ALL audio
   useEffect(() => {
-    if (!backgroundMusicRef.current) return;
+    if (!backgroundMusicRef.current || !easterEggSoundRef.current) return;
 
     if (isMuted) {
-      backgroundMusicRef.current.pause();
+      // Mute affects volume, not playback state
+      backgroundMusicRef.current.volume = 0;
+      easterEggSoundRef.current.volume = 0;
     } else {
-      if (backgroundMusicRef.current.loop === false) {
-        backgroundMusicRef.current.loop = true;
-      }
+      // Restore volumes
+      backgroundMusicRef.current.volume = 0.5;
+      easterEggSoundRef.current.volume = 1.0;
 
+      // Resume audio context if suspended
       if (audioContextRef.current?.state === 'suspended') {
         audioContextRef.current.resume();
-      }
-
-      const playPromise = backgroundMusicRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(e => {
-          if (e.name !== 'AbortError') {
-            console.error("Background music play failed:", e);
-          }
-        });
       }
     }
   }, [isMuted]);
 
+  // Handle play/pause state changes without causing circular updates
+  useEffect(() => {
+    // This effect shouldn't run on initial render
+    const audio = backgroundMusicRef.current;
+    if (!audio) return;
+
+    // This effect only syncs the audio element with our React state
+    // It should not trigger state changes itself
+    
+    const currentlyPlaying = !audio.paused;
+    
+    // Only take action if there's a mismatch between desired state and current audio state
+    if (isPlaying !== currentlyPlaying) {
+      if (isPlaying) {
+        // We want to be playing, but audio is paused
+        if (audio.loop === false) {
+          audio.loop = true;
+        }
+        
+        if (audioContextRef.current?.state === 'suspended') {
+          audioContextRef.current.resume();
+        }
+        
+        // Explicitly avoid capturing the promise to prevent unwanted state updates
+        audio.play().catch(e => {
+          // Only log errors, don't update state here to avoid cycles
+          if (e.name !== 'AbortError') {
+            console.error("Play failed in effect:", e);
+          }
+        });
+      } else {
+        // We want to be paused, but audio is playing
+        audio.pause();
+      }
+    }
+  }, [isPlaying]);
+
+  // Toggle audio mute (affects ALL audio)
   const toggleMute = () => {
     document.dispatchEvent(new CustomEvent('audio-mute-toggled'));
     setIsMuted(prev => !prev);
   };
 
+  // Toggle play/pause (only affects background music)
+  const togglePlayPause = () => {
+    if (!backgroundMusicRef.current) return;
+
+    // Determine current state and desired new state
+    const currentlyPlaying = !backgroundMusicRef.current.paused;
+    const shouldPlay = !currentlyPlaying;
+    
+    // First update state to match what we want
+    setIsPlaying(shouldPlay);
+    
+    // Then perform the audio operation
+    if (shouldPlay) {
+      // Need to play the audio
+      if (backgroundMusicRef.current.paused) {
+        // Play if it's currently paused
+        if (audioContextRef.current?.state === 'suspended') {
+          audioContextRef.current.resume();
+        }
+        
+        const playPromise = backgroundMusicRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(e => {
+            if (e.name !== 'AbortError') {
+              console.error("Play failed:", e);
+              // If failed, revert state
+              setIsPlaying(false);
+            }
+          });
+        }
+      }
+    } else {
+      // Need to pause the audio
+      if (!backgroundMusicRef.current.paused) {
+        backgroundMusicRef.current.pause();
+      }
+    }
+    
+    // Notify other components about the change
+    document.dispatchEvent(new CustomEvent('audio-playpause-toggled'));
+  };
+
   const playEasterEggSound = async (): Promise<void> => {
     if (isMuted || !easterEggSoundRef.current) return Promise.resolve();
 
-    if (backgroundMusicRef.current) {
+    // Pause background music but remember its state
+    const wasPlaying = isPlaying;
+    if (backgroundMusicRef.current && isPlaying) {
       backgroundMusicRef.current.pause();
     }
 
@@ -235,12 +330,16 @@ export default function AudioManager({ children }: { children: React.ReactNode }
           if (e.name !== 'AbortError') {
             console.error("Easter egg sound play failed:", e);
           }
+          // Resume background music if it was playing before
+          if (wasPlaying) resumeBackgroundMusic();
         });
       }
     } catch (e) {
       if (e instanceof Error && e.name !== 'AbortError') {
         console.error("Easter egg sound error:", e);
       }
+      // Resume background music if it was playing before
+      if (wasPlaying) resumeBackgroundMusic();
     }
 
     return Promise.resolve();
@@ -256,11 +355,11 @@ export default function AudioManager({ children }: { children: React.ReactNode }
           return;
         }
 
-        if (easterEggSoundRef.current.volume > 0.05) {
+        if (easterEggSoundRef.current.volume > 0.05 && !isMuted) {
           easterEggSoundRef.current.volume -= 0.05;
         } else {
           easterEggSoundRef.current.pause();
-          easterEggSoundRef.current.volume = 1.0;
+          if (!isMuted) easterEggSoundRef.current.volume = 1.0; // Reset volume if not muted
           clearInterval(fadeInterval);
           resumeBackgroundMusic();
         }
@@ -273,20 +372,38 @@ export default function AudioManager({ children }: { children: React.ReactNode }
   };
 
   const resumeBackgroundMusic = () => {
-    if (isMuted || !backgroundMusicRef.current) return;
+    // Only resume if the audio should be playing and isn't already
+    if (!backgroundMusicRef.current || !isPlaying) return;
+    
+    // Check if it's already playing - no need to trigger again
+    if (!backgroundMusicRef.current.paused) return;
 
     try {
+      // Ensure loop property is set correctly
+      if (backgroundMusicRef.current.loop === false) {
+        backgroundMusicRef.current.loop = true;
+      }
+      
+      // Resume audio context if needed
+      if (audioContextRef.current?.state === 'suspended') {
+        audioContextRef.current.resume();
+      }
+
       const playPromise = backgroundMusicRef.current.play();
       if (playPromise !== undefined) {
         playPromise.catch(e => {
           if (e.name !== 'AbortError') {
             console.error("Background music resume failed:", e);
+            // Update state if playback failed
+            setIsPlaying(false);
           }
         });
       }
     } catch (e) {
       if (e instanceof Error && e.name !== 'AbortError') {
         console.error("Background music resume error:", e);
+        // Update state if playback failed
+        setIsPlaying(false);
       }
     }
   };
@@ -297,6 +414,7 @@ export default function AudioManager({ children }: { children: React.ReactNode }
         isMuted,
         isPlaying,
         toggleMute,
+        togglePlayPause,
         playEasterEggSound,
         stopEasterEggSound,
         resumeBackgroundMusic,
