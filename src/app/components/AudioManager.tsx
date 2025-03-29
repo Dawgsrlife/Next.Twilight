@@ -339,6 +339,9 @@ export default function AudioManager({ children }: { children: React.ReactNode }
         audio.pause();
       }
     }
+    // We intentionally omit isMuted and isPlaying from the dependencies
+    // to prevent cycles, as this is a sync effect
+     
   }, [isPlaying]);
 
   // Toggle audio mute (affects ALL audio)
@@ -428,15 +431,9 @@ export default function AudioManager({ children }: { children: React.ReactNode }
           }
         };
         
-        // Store original handlers to restore later
-        const originalPlayHandler = mediaSessionPlayHandlerRef.current;
-        const originalPauseHandler = mediaSessionPauseHandlerRef.current;
-        
-        // Set Easter egg specific handlers
-        navigator.mediaSession.setActionHandler('pause', easterEggPauseHandler);
-        
-        // Store the Easter egg handlers for cleanup
+        // Store the Easter egg handlers for cleanup and set action handler
         mediaSessionPauseHandlerRef.current = easterEggPauseHandler;
+        navigator.mediaSession.setActionHandler('pause', easterEggPauseHandler);
         
         navigator.mediaSession.playbackState = 'playing';
       }
