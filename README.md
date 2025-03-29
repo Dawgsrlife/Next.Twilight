@@ -176,7 +176,10 @@ This project includes a complete audio management system for an enhanced user ex
 - **Background Music**: Relaxing lofi music plays in the background while browsing the site
 - **Sound Effects**: Interactive sound effects for special events and Easter eggs
 - **Audio Controls**: Easy mute/unmute button in the header
-- **Keyboard Shortcuts**: Toggle audio with CTRL+M
+- **Keyboard Shortcuts**: 
+  - Toggle audio with CTRL+M 
+  - Play/pause with Spacebar
+- **Music Player**: Beautiful popup player with real-time audio visualization
 - **Smooth Transitions**: Audio fades in/out smoothly between different sounds
 - **Error Handling**: Robust error handling for audio playback
 

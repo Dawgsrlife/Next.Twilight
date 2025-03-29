@@ -2,10 +2,10 @@
 
 import { useAudio } from '../AudioManager';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 
 export default function MusicPopup() {
-  const { isPlaying, isMuted, toggleMute } = useAudio();
+  const { isPlaying, isMuted, toggleMute, audioData } = useAudio();
   const [showPopup, setShowPopup] = useState(false);
   const [trackInfo, setTrackInfo] = useState({
     title: "Chill Lofi Beats",
@@ -16,21 +16,28 @@ export default function MusicPopup() {
   // Track current beat for animation
   const [beat, setBeat] = useState(0);
   
-  // Show popup when music starts playing
+  // Show popup when music status changes
   useEffect(() => {
-    if (isPlaying && !isMuted) {
-      setShowPopup(true);
-      
-      // Hide popup after 8 seconds
-      const timer = setTimeout(() => {
-        setShowPopup(false);
-      }, 8000);
-      
-      return () => clearTimeout(timer);
-    } else {
+    // Any change in playback status should trigger the popup
+    setShowPopup(true);
+    
+    // Hide popup after 8 seconds
+    const timer = setTimeout(() => {
       setShowPopup(false);
-    }
+    }, 8000);
+    
+    return () => clearTimeout(timer);
   }, [isPlaying, isMuted]);
+
+  // Force show popup function (can be called when hotkeys are used)
+  const forceShowPopup = useCallback(() => {
+    setShowPopup(true);
+    // Hide popup after 8 seconds
+    const timer = setTimeout(() => {
+      setShowPopup(false);
+    }, 8000);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Create beat animation
   useEffect(() => {
@@ -42,6 +49,38 @@ export default function MusicPopup() {
     
     return () => clearInterval(interval);
   }, [isPlaying, isMuted]);
+
+  // Process audio data for visualization
+  const barHeights = useMemo(() => {
+    if (!audioData || audioData.length === 0) {
+      // Default animation when no audio data is available
+      return [0.4, 0.6, 0.8].map(() => ({
+        height: Math.random() * 20 + 5,
+        value: 0
+      }));
+    }
+
+    // Sample a few frequency bands for the visualization
+    // Focus on lower and mid frequencies which are more prominent in lofi music
+    const lowIdx = Math.floor(audioData.length * 0.1);  // Low frequencies
+    const midIdx = Math.floor(audioData.length * 0.3);  // Mid frequencies
+    const highIdx = Math.floor(audioData.length * 0.6); // Higher-mid frequencies
+
+    return [
+      {
+        height: (audioData[lowIdx] / 255) * 24 + 4, // Scale to reasonable height
+        value: audioData[lowIdx]
+      },
+      {
+        height: (audioData[midIdx] / 255) * 24 + 4,
+        value: audioData[midIdx]
+      },
+      {
+        height: (audioData[highIdx] / 255) * 20 + 4,
+        value: audioData[highIdx]
+      }
+    ];
+  }, [audioData]);
 
   return (
     <AnimatePresence>
@@ -77,15 +116,32 @@ export default function MusicPopup() {
               <p className="font-medium truncate">{trackInfo.title}</p>
               <p className="text-xs text-[rgb(var(--muted-foreground))] truncate">{trackInfo.artist}</p>
               
+              {/* Status indicator */}
+              <div className="mt-1 flex items-center">
+                <span className="text-xs font-medium flex items-center">
+                  <motion.span 
+                    className={`inline-block w-2 h-2 rounded-full mr-1.5 ${!isMuted ? 'bg-green-500' : 'bg-red-500'}`}
+                    animate={!isMuted ? { scale: [1, 1.2, 1] } : {}}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  />
+                  {!isMuted ? 'Playing' : 'Paused'}
+                </span>
+                
+                {/* Keyboard hint */}
+                <span className="text-xs text-[rgb(var(--muted-foreground))] ml-2">
+                  Press <kbd className="px-1 py-0.5 bg-[rgb(var(--muted))] rounded text-[10px] border border-[rgb(var(--border))]">Space</kbd> to toggle
+                </span>
+              </div>
+              
               {/* Progress Dots */}
-              <div className="mt-2 flex items-center space-x-1">
+              <div className="mt-1 flex items-center space-x-1">
                 {[0, 1, 2, 3].map((i) => (
                   <motion.div 
                     key={i}
                     className={`w-1.5 h-1.5 rounded-full ${
                       i === beat ? 'bg-[rgb(var(--primary))]' : 'bg-[rgb(var(--muted))]'
                     }`}
-                    animate={i === beat ? { scale: [1, 1.5, 1] } : {}}
+                    animate={i === beat && !isMuted ? { scale: [1, 1.5, 1] } : {}}
                     transition={{ duration: 0.3 }}
                   />
                 ))}
@@ -118,27 +174,17 @@ export default function MusicPopup() {
               </div>
             </div>
             
-            {/* Animated Equalizer */}
-            <div className="relative h-10 w-6 flex items-end justify-center space-x-px">
-              {[...Array(3)].map((_, i) => (
+            {/* Live Audio Waveform Visualization */}
+            <div className="relative h-10 w-8 flex items-end justify-center space-x-px">
+              {barHeights.map((bar, i) => (
                 <motion.div
                   key={i}
-                  className="w-1.5 bg-gradient-to-t from-purple-500 to-pink-500 rounded-t-sm"
-                  animate={{
-                    height: [
-                      Math.random() * 8 + 4,
-                      Math.random() * 16 + 8,
-                      Math.random() * 24 + 4,
-                      Math.random() * 12 + 6,
-                    ],
+                  className="w-2 bg-gradient-to-t from-purple-500 to-pink-500 rounded-t-sm"
+                  style={{ 
+                    height: `${bar.height}px`,
+                    opacity: Math.max(0.4, bar.value / 255) // Ensure minimum visibility
                   }}
-                  transition={{
-                    duration: 1.2,
-                    repeat: Infinity,
-                    repeatType: "reverse",
-                    ease: "easeInOut",
-                    delay: i * 0.2,
-                  }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 />
               ))}
             </div>
@@ -157,7 +203,11 @@ export default function MusicPopup() {
                 stroke="currentColor" 
                 className="w-5 h-5"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
+                {!isMuted ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+                )}
               </svg>
             </motion.button>
           </div>

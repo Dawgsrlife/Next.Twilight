@@ -16,6 +16,7 @@ export default function HotKeys() {
   const hotkeys = [
     { key: "d", ctrlKey: true, description: "Toggle dark/light mode", action: toggleTheme },
     { key: "m", ctrlKey: true, description: "Toggle audio mute", action: toggleMute },
+    { key: " ", ctrlKey: false, description: "Play/pause audio", action: toggleMute },
     { key: "g", ctrlKey: true, description: "Open GitHub repository", action: () => window.open("https://github.com/Dawgsrlife/nextjs-typescript-starter", "_blank") },
     { key: "p", ctrlKey: true, description: "Open GitHub profile", action: () => window.open("https://github.com/Dawgsrlife", "_blank") },
     { key: "1", ctrlKey: true, description: "Go to Home page", action: () => router.push("/") },
@@ -34,6 +35,24 @@ export default function HotKeys() {
       // Don't trigger hotkeys when typing in input elements
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
         return;
+      }
+      
+      // Handle Space bar for play/pause
+      if (e.key === ' ' && !e.ctrlKey && !e.metaKey) {
+        // Only capture space if we're not in an interactive element
+        const activeElement = document.activeElement;
+        const isInteractive = 
+          activeElement instanceof HTMLButtonElement || 
+          activeElement instanceof HTMLAnchorElement ||
+          activeElement instanceof HTMLTextAreaElement ||
+          activeElement instanceof HTMLInputElement ||
+          activeElement?.hasAttribute('role');
+          
+        if (!isInteractive) {
+          e.preventDefault(); // Prevent page scroll on space
+          toggleMute();
+          return;
+        }
       }
       
       // Toggle hotkey display with '/' or close with Escape key
@@ -63,7 +82,7 @@ export default function HotKeys() {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [hotkeys, toggleTheme, router, showHotkeys]);
+  }, [hotkeys, toggleTheme, toggleMute, router, showHotkeys]);
 
   return (
     <AnimatePresence>
@@ -101,7 +120,7 @@ export default function HotKeys() {
                       <span className="text-[rgb(var(--muted-foreground))] mx-1">+</span>
                     )}
                     <kbd className="px-2 py-1 text-xs font-semibold bg-[rgb(var(--muted))] rounded-md border border-[rgb(var(--border))]">
-                      {hotkey.key.toUpperCase()}
+                      {hotkey.key === " " ? "SPACE" : hotkey.key.toUpperCase()}
                     </kbd>
                   </div>
                   <span className="text-sm">{hotkey.description}</span>
