@@ -4,15 +4,18 @@ import React, { useEffect, useState } from 'react';
 import { useTheme } from './ThemeProvider';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import { useAudio } from './AudioManager';
 
 export default function HotKeys() {
   const { toggleTheme } = useTheme();
+  const { toggleMute, isMuted } = useAudio();
   const router = useRouter();
   const [showHotkeys, setShowHotkeys] = useState(false);
   
   // Hotkey mappings and descriptions
   const hotkeys = [
     { key: "d", ctrlKey: true, description: "Toggle dark/light mode", action: toggleTheme },
+    { key: "m", ctrlKey: true, description: "Toggle audio mute", action: toggleMute },
     { key: "g", ctrlKey: true, description: "Open GitHub repository", action: () => window.open("https://github.com/Dawgsrlife/nextjs-typescript-starter", "_blank") },
     { key: "p", ctrlKey: true, description: "Open GitHub profile", action: () => window.open("https://github.com/Dawgsrlife", "_blank") },
     { key: "1", ctrlKey: true, description: "Go to Home page", action: () => router.push("/") },

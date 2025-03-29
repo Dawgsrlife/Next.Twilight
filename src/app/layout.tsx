@@ -8,6 +8,9 @@ import Footer from "./components/Footer";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import HotKeys from "./components/HotKeys";
+import EasterEgg from "./components/EasterEgg";
+import AudioManager from "./components/AudioManager";
+import MusicPopup from "./components/ui/MusicPopup";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,16 +41,20 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased min-h-screen flex flex-col`}
       >
         <ThemeProvider>
-          <Header />
-          <div className="flex-grow">
-            <AnimatePresence mode="wait">
-              {children}
-            </AnimatePresence>
-          </div>
-          <Footer />
-          <HotKeys />
-          <Analytics />
-          <SpeedInsights />
+          <AudioManager>
+            <Header />
+            <div className="flex-grow">
+              <AnimatePresence mode="wait">
+                {children}
+              </AnimatePresence>
+            </div>
+            <Footer />
+            <HotKeys />
+            <EasterEgg />
+            <MusicPopup />
+            <Analytics />
+            <SpeedInsights />
+          </AudioManager>
         </ThemeProvider>
       </body>
     </html>
