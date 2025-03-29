@@ -13,7 +13,6 @@ import { pageTransition, staggerContainer, staggerItems } from "./animations/var
 
 export default function Home() {
   const { tutorials, setActiveTutorial, completedTutorials } = useTutorialStore();
-  const progress = (completedTutorials.length / tutorials.length) * 100;
   
   useEffect(() => {
     setActiveTutorial("intro");
@@ -30,10 +29,6 @@ export default function Home() {
       <HeroSection />
       
       <Section>
-        <div className="mb-8 mt-16">
-          <ProgressBar progress={progress} className="max-w-xl mx-auto" />
-        </div>
-
         <motion.div 
           className="mb-12 p-6 bg-[rgb(var(--card))] rounded-lg border border-[rgb(var(--border))]"
           variants={staggerContainer}

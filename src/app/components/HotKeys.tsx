@@ -15,12 +15,13 @@ export default function HotKeys() {
     { key: "d", ctrlKey: true, description: "Toggle dark/light mode", action: toggleTheme },
     { key: "g", ctrlKey: true, description: "Open GitHub repository", action: () => window.open("https://github.com/Dawgsrlife/nextjs-typescript-starter", "_blank") },
     { key: "p", ctrlKey: true, description: "Open GitHub profile", action: () => window.open("https://github.com/Dawgsrlife", "_blank") },
-    { key: "h", ctrlKey: true, description: "Go to Home page", action: () => router.push("/") },
-    { key: "t", ctrlKey: true, description: "Go to TypeScript page", action: () => router.push("/typescript") },
-    { key: "n", ctrlKey: true, description: "Go to Next.js page", action: () => router.push("/next-js") },
-    { key: "c", ctrlKey: true, description: "Go to Tailwind CSS page", action: () => router.push("/tailwind") },
-    { key: "f", ctrlKey: true, description: "Go to Framer Motion page", action: () => router.push("/framer-motion") },
-    { key: "a", ctrlKey: true, description: "Go to About page", action: () => router.push("/about") },
+    { key: "1", ctrlKey: true, description: "Go to Home page", action: () => router.push("/") },
+    { key: "2", ctrlKey: true, description: "Go to TypeScript page", action: () => router.push("/typescript") },
+    { key: "3", ctrlKey: true, description: "Go to Next.js page", action: () => router.push("/next-js") },
+    { key: "4", ctrlKey: true, description: "Go to Tailwind CSS page", action: () => router.push("/tailwind") },
+    { key: "5", ctrlKey: true, description: "Go to Framer Motion page", action: () => router.push("/framer-motion") },
+    { key: "6", ctrlKey: true, description: "Go to Todo page", action: () => router.push("/todo") },
+    { key: "7", ctrlKey: true, description: "Go to About page", action: () => router.push("/about") },
     { key: "/", ctrlKey: false, description: "Show/hide hotkey reference", action: () => setShowHotkeys(prev => !prev) },
   ];
 
@@ -32,10 +33,17 @@ export default function HotKeys() {
         return;
       }
       
-      // Toggle hotkey display with '/'
+      // Toggle hotkey display with '/' or close with Escape key
       if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
         setShowHotkeys(prev => !prev);
+        return;
+      }
+      
+      // Close hotkey panel with Escape key only if it's open
+      if (e.key === 'Escape' && showHotkeys) {
+        e.preventDefault();
+        setShowHotkeys(false);
         return;
       }
       
@@ -52,7 +60,7 @@ export default function HotKeys() {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [hotkeys, toggleTheme, router]);
+  }, [hotkeys, toggleTheme, router, showHotkeys]);
 
   return (
     <AnimatePresence>

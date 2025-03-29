@@ -323,7 +323,7 @@ const variants = {
               <div className="h-40 border border-[rgb(var(--border))] rounded-lg flex justify-center items-center mb-4">
                 <motion.div 
                   ref={scope}
-                  className="w-24 h-24 bg-primary/80 rounded-lg flex items-center justify-center text-[rgb(var(--primary-foreground))] font-bold"
+                  className="w-24 h-24 bg-[rgb(var(--primary))] rounded-lg flex items-center justify-center text-[rgb(var(--primary-foreground))] font-bold"
                 >
                   Motion
                 </motion.div>
