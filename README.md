@@ -7,16 +7,22 @@ A beautiful tutorial and playground repository designed for learning and experim
 ## 📱 Demo
 
 <p align="center">
-  <img src="/public/project_gif_animations/Next.Twilight Demo.gif" alt="Demo Overview" width="70%">
+  <a href="/public/project_gif_animations/Next.Twilight Demo.gif" target="_blank" title="Click for full resolution">
+    <img src="/public/project_gif_animations/Next.Twilight Demo.gif" alt="Demo Overview" width="70%">
+  </a>
   <br>
-  <em>Overall Demo</em>
+  <em>Overall Demo (Click for full resolution)</em>
 </p>
 
 <p align="center">
-  <img src="/public/project_gif_animations/Next.Twilight Framer Motion Demo.gif" alt="Framer Motion UI Demo" width="70%">
+  <a href="/public/project_gif_animations/Next.Twilight Framer Motion Demo.gif" target="_blank" title="Click for full resolution">
+    <img src="/public/project_gif_animations/Next.Twilight Framer Motion Demo.gif" alt="Framer Motion UI Demo" width="70%">
+  </a>
   <br>
-  <em>Framer Motion UI Possibilities</em>
+  <em>Framer Motion UI Possibilities (Click for full resolution)</em>
 </p>
+
+> **Viewing tip:** For the best quality, clone the repository and view the GIFs locally, or click on them to view in full resolution.
 
 ---
 
