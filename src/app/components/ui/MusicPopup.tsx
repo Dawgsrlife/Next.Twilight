@@ -46,6 +46,23 @@ export default function MusicPopup() {
       
       // Set the flag to false so this only runs once
       isFirstRender = false;
+      
+      // Show the popup initially but don't auto-hide it
+      // Hide it after 8 seconds on initial load only
+      const timer = setTimeout(() => {
+        setShowPopup(false);
+        
+        // Remove from popup stack when hidden
+        const index = popupStack.indexOf('musicPlayer');
+        if (index > -1) {
+          popupStack.splice(index, 1);
+        }
+        
+        // Notify other components
+        document.dispatchEvent(new CustomEvent('musicPopupStateChanged', { detail: false }));
+      }, 8000);
+      
+      return () => clearTimeout(timer);
     }
   }, []);
   
@@ -69,34 +86,28 @@ export default function MusicPopup() {
     };
   }, []);
   
-  // Show popup when music status changes, only if autoHide is enabled and not triggered by ALT+M
+  // Show popup when music status changes, only for certain actions
+  // Specifically exclude showing the popup when triggered by ALT+M or spacebar (mute/play/pause)
   useEffect(() => {
-    if (!autoHide || muteToggleDetected) return; // Skip auto-show/hide if disabled or if mute toggle detected
+    // Skip auto-show/hide for these conditions:
+    // 1. If autoHide is disabled 
+    // 2. If mute toggle was detected (ALT+M or spacebar)
+    if (!autoHide || muteToggleDetected) return;
     
-    // Status changes that should trigger the popup
-    // Note: We specifically don't want ALT+M (mute toggle) to trigger this
-    setShowPopup(true);
+    // For music player visibility, we ONLY want to show the popup when:
+    // - The user clicks the music player button
+    // - The user uses CTRL+J to toggle the player
+    // - This is the initial page load
     
-    // If just became visible, update the popup stack
-    if (!popupStack.includes('musicPlayer')) {
-      popupStack.push('musicPlayer');
-    }
+    // We specifically DON'T want the popup to appear when:
+    // - The user presses ALT+M to mute/unmute
+    // - The user presses spacebar to play/pause
     
-    // Hide popup after 8 seconds
-    const timer = setTimeout(() => {
-      setShowPopup(false);
-      
-      // Remove from popup stack when auto-hidden
-      const index = popupStack.indexOf('musicPlayer');
-      if (index > -1) {
-        popupStack.splice(index, 1);
-      }
-      
-      // Notify other components
-      document.dispatchEvent(new CustomEvent('musicPopupStateChanged', { detail: false }));
-    }, 8000);
+    // Since we're already filtering out mute toggle events,
+    // there's no need to show the popup on status changes anymore
+    // Only the explicit toggle actions should show the popup
     
-    return () => clearTimeout(timer);
+    // If we want to show the popup on initial mount, that's handled separately
   }, [isPlaying, isMuted, autoHide, muteToggleDetected]);
 
   // Update the popup stack when music popup state changes
@@ -117,8 +128,44 @@ export default function MusicPopup() {
     }
   }, []);
 
-  // Toggle popup visibility
+  // Listen for toggle event from keyboard shortcut (CTRL+J)
+  useEffect(() => {
+    const handleToggleEvent = () => {
+      // When explicitly toggling via CTRL+J, always show the popup
+      if (!showPopup) {
+        setShowPopup(true);
+        
+        // Update the popup stack
+        if (!popupStack.includes('musicPlayer')) {
+          popupStack.push('musicPlayer');
+        }
+        
+        // Dispatch event to notify other components
+        const event = new CustomEvent('musicPopupStateChanged', { detail: true });
+        document.dispatchEvent(event);
+      } else {
+        // If already showing, hide it
+        setShowPopup(false);
+        
+        // Update the popup stack
+        const index = popupStack.indexOf('musicPlayer');
+        if (index > -1) {
+          popupStack.splice(index, 1);
+        }
+        
+        // Dispatch event to notify other components
+        const event = new CustomEvent('musicPopupStateChanged', { detail: false });
+        document.dispatchEvent(event);
+      }
+    };
+    
+    document.addEventListener('toggleMusicPlayer', handleToggleEvent);
+    return () => document.removeEventListener('toggleMusicPlayer', handleToggleEvent);
+  }, [showPopup]);
+  
+  // Toggle popup visibility (for button click)
   const togglePopup = useCallback(() => {
+    // For explicit toggle actions (button click), we want to show/hide
     const newState = !showPopup;
     setShowPopup(newState);
     setAutoHide(false); // Disable auto-hide when manually toggled
@@ -147,16 +194,6 @@ export default function MusicPopup() {
       document.removeEventListener('requestCloseAllPopups', handleCloseAllPopups);
     };
   }, [showPopup, updateMusicPopupInStack]);
-  
-  // Listen for toggle event from keyboard shortcut
-  useEffect(() => {
-    const handleToggleEvent = () => {
-      togglePopup();
-    };
-    
-    document.addEventListener('toggleMusicPlayer', handleToggleEvent);
-    return () => document.removeEventListener('toggleMusicPlayer', handleToggleEvent);
-  }, [togglePopup]);
   
   // Create beat animation
   useEffect(() => {
