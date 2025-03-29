@@ -321,6 +321,7 @@ export default function AudioManager({ children }: { children: React.ReactNode }
   }, [isMuted, easterEggActive]);
 
   // Handle play/pause state changes without causing circular updates
+   
   useEffect(() => {
     // This effect shouldn't run on initial render
     const audio = backgroundMusicRef.current;
@@ -359,7 +360,6 @@ export default function AudioManager({ children }: { children: React.ReactNode }
       }
     }
     // We intentionally omit isMuted from the dependencies
-     
   }, [isPlaying]);
 
   // Toggle audio mute (affects ALL audio)
