@@ -38,6 +38,7 @@ export default function AudioManager({ children }: { children: React.ReactNode }
   const [isMuted, setIsMuted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioData, setAudioData] = useState<Uint8Array | null>(null);
+  const [easterEggActive, setEasterEggActive] = useState(false);
 
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
   const easterEggSoundRef = useRef<HTMLAudioElement | null>(null);
@@ -290,14 +291,18 @@ export default function AudioManager({ children }: { children: React.ReactNode }
     } else {
       // Restore volumes
       backgroundMusicRef.current.volume = 0.5;
-      easterEggSoundRef.current.volume = 1.0;
+      
+      // Only set Easter egg sound volume if it's active
+      if (easterEggActive && !easterEggSoundRef.current.paused) {
+        easterEggSoundRef.current.volume = 1.0;
+      }
 
       // Resume audio context if suspended
       if (audioContextRef.current?.state === 'suspended') {
         audioContextRef.current.resume();
       }
     }
-  }, [isMuted]);
+  }, [isMuted, easterEggActive]);
 
   // Handle play/pause state changes without causing circular updates
   useEffect(() => {
@@ -395,7 +400,11 @@ export default function AudioManager({ children }: { children: React.ReactNode }
   };
 
   const playEasterEggSound = async (): Promise<void> => {
-    if (isMuted || !easterEggSoundRef.current) return Promise.resolve();
+    // Don't return early if muted, just adjust volume
+    if (!easterEggSoundRef.current) return Promise.resolve();
+    
+    // Set Easter egg as active
+    setEasterEggActive(true);
 
     // Pause background music but remember its state
     const wasPlaying = isPlaying;
@@ -434,6 +443,8 @@ export default function AudioManager({ children }: { children: React.ReactNode }
     }
 
     try {
+      // Set volume based on mute state
+      easterEggSoundRef.current.volume = isMuted ? 0 : 1.0;
       easterEggSoundRef.current.currentTime = 0;
       const playPromise = easterEggSoundRef.current.play();
 
@@ -444,6 +455,7 @@ export default function AudioManager({ children }: { children: React.ReactNode }
           }
           // Resume background music if it was playing before
           if (wasPlaying) resumeBackgroundMusic();
+          setEasterEggActive(false);
         });
       }
     } catch (e) {
@@ -452,6 +464,7 @@ export default function AudioManager({ children }: { children: React.ReactNode }
       }
       // Resume background music if it was playing before
       if (wasPlaying) resumeBackgroundMusic();
+      setEasterEggActive(false);
     }
 
     return Promise.resolve();
@@ -464,6 +477,7 @@ export default function AudioManager({ children }: { children: React.ReactNode }
       const fadeInterval = setInterval(() => {
         if (!easterEggSoundRef.current) {
           clearInterval(fadeInterval);
+          setEasterEggActive(false);
           return;
         }
 
@@ -474,6 +488,7 @@ export default function AudioManager({ children }: { children: React.ReactNode }
           if (!isMuted) easterEggSoundRef.current.volume = 1.0; // Reset volume if not muted
           clearInterval(fadeInterval);
           resumeBackgroundMusic();
+          setEasterEggActive(false);
           
           // Restore MediaSession to background music after easter egg sound stops
           restoreBackgroundMusicMediaSession();
@@ -483,6 +498,7 @@ export default function AudioManager({ children }: { children: React.ReactNode }
       easterEggSoundRef.current.pause();
       easterEggSoundRef.current.currentTime = 0;
       resumeBackgroundMusic();
+      setEasterEggActive(false);
       
       // Restore MediaSession to background music after easter egg sound stops
       restoreBackgroundMusicMediaSession();
