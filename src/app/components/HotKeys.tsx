@@ -9,9 +9,11 @@ import { musicPopupClosedEvent, requestCloseAllPopupsEvent } from './ui/MusicPop
 
 // Custom event for toggling music player
 export const toggleMusicPlayerEvent = new CustomEvent('toggleMusicPlayer');
+// Custom event for tracking hotkeys panel state
+export const hotkeysPanelStateEvent = new CustomEvent('hotkeysStateChanged', { detail: false });
 
 // Create stack for tracking open popups
-const popupStack: string[] = [];
+export const popupStack: string[] = [];
 
 export default function HotKeys() {
   const { toggleTheme } = useTheme();
@@ -28,6 +30,17 @@ export default function HotKeys() {
   
   // Track popup states for layering
   useEffect(() => {
+    // Check for initial music player state
+    const checkInitialMusicPlayerState = () => {
+      const musicPlayer = document.querySelector('[class*="fixed right-24 z-40"]');
+      const isInitiallyOpen = !!musicPlayer;
+      
+      if (isInitiallyOpen && !popupStack.includes('musicPlayer')) {
+        popupStack.push('musicPlayer');
+        setMusicPlayerOpen(true);
+      }
+    };
+    
     // Update the popup stack when hotkeys panel state changes
     const updateHotkeysInStack = (isOpen: boolean) => {
       if (isOpen) {
@@ -40,13 +53,6 @@ export default function HotKeys() {
           popupStack.splice(index, 1);
         }
       }
-    };
-    
-    // Update local state and dispatch event for other components
-    const updateShowHotkeys = (value: boolean) => {
-      setShowHotkeys(value);
-      updateHotkeysInStack(value);
-      document.dispatchEvent(new CustomEvent('hotkeysStateChanged', { detail: value }));
     };
     
     // Listen for music player state changes
@@ -84,6 +90,9 @@ export default function HotKeys() {
     // Set initial state
     updateHotkeysInStack(showHotkeys);
     checkMusicButtonVisibility();
+    
+    // Wait for DOM to be ready before checking initial music player state
+    setTimeout(checkInitialMusicPlayerState, 500);
     
     // Set up a mutation observer to watch for music button presence
     const observer = new MutationObserver(() => {
@@ -128,12 +137,20 @@ export default function HotKeys() {
     const newState = !showHotkeys;
     setShowHotkeys(newState);
     
-    document.dispatchEvent(new CustomEvent('hotkeysStateChanged', { detail: newState }));
+    // Create a new event with the current state
+    const event = new CustomEvent('hotkeysStateChanged', { detail: newState });
+    document.dispatchEvent(event);
     
     if (newState) {
-      if (!popupStack.includes('hotkeys')) {
-        popupStack.push('hotkeys');
+      // Always ensure hotkeys is at the top of the stack when opened
+      
+      // Remove hotkeys from stack if it's already there (to avoid duplicates)
+      const index = popupStack.indexOf('hotkeys');
+      if (index > -1) {
+        popupStack.splice(index, 1);
       }
+      // Add to top of stack
+      popupStack.push('hotkeys');
     } else {
       const index = popupStack.indexOf('hotkeys');
       if (index > -1) {

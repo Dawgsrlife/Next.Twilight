@@ -7,13 +7,13 @@ A beautiful tutorial and playground repository designed for learning and experim
 ## 📱 Demo
 
 <p align="center">
-  <img src="https://i.imgur.com/ePXIOzI.gif" alt="Demo Overview" width="70%">
+  <img src="/public/project_gif_animations/Next.Twilight Demo.gif" alt="Demo Overview" width="70%">
   <br>
   <em>Overall Demo</em>
 </p>
 
 <p align="center">
-  <img src="https://i.imgur.com/tvOwlrp.gif" alt="Framer Motion UI Demo" width="70%">
+  <img src="/public/project_gif_animations/Next.Twilight Framer Motion Demo.gif" alt="Framer Motion UI Demo" width="70%">
   <br>
   <em>Framer Motion UI Possibilities</em>
 </p>

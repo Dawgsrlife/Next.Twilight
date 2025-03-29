@@ -3,7 +3,7 @@
 import { useAudio } from '../AudioManager';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { toggleMusicPlayerEvent } from '../HotKeys';
+import { toggleMusicPlayerEvent, popupStack } from '../HotKeys';
 
 // Create custom events for popup state management
 export const musicPopupStateEvent = new CustomEvent('musicPopupStateChanged', { detail: false });
@@ -23,6 +23,22 @@ export default function MusicPopup() {
   // Track current beat for animation
   const [beat, setBeat] = useState(0);
   
+  // Add to popup stack on initial render if visible
+  useEffect(() => {
+    // Add a small delay to ensure component is mounted
+    const initialTimer = setTimeout(() => {
+      if (showPopup && !popupStack.includes('musicPlayer')) {
+        popupStack.push('musicPlayer');
+        
+        // Dispatch event to notify other components of initial state
+        const event = new CustomEvent('musicPopupStateChanged', { detail: true });
+        document.dispatchEvent(event);
+      }
+    }, 100);
+    
+    return () => clearTimeout(initialTimer);
+  }, []);
+  
   // Show popup when music status changes, only if autoHide is enabled
   useEffect(() => {
     if (!autoHide) return; // Skip auto-show/hide if disabled
@@ -30,13 +46,45 @@ export default function MusicPopup() {
     // Any change in playback status should trigger the popup
     setShowPopup(true);
     
+    // If just became visible, update the popup stack
+    if (!popupStack.includes('musicPlayer')) {
+      popupStack.push('musicPlayer');
+    }
+    
     // Hide popup after 8 seconds
     const timer = setTimeout(() => {
       setShowPopup(false);
+      
+      // Remove from popup stack when auto-hidden
+      const index = popupStack.indexOf('musicPlayer');
+      if (index > -1) {
+        popupStack.splice(index, 1);
+      }
+      
+      // Notify other components
+      document.dispatchEvent(new CustomEvent('musicPopupStateChanged', { detail: false }));
     }, 8000);
     
     return () => clearTimeout(timer);
   }, [isPlaying, isMuted, autoHide]);
+
+  // Update the popup stack when music popup state changes
+  const updateMusicPopupInStack = useCallback((isOpen: boolean) => {
+    if (isOpen) {
+      // Remove musicPlayer from stack if it's already there (to avoid duplicates)
+      const index = popupStack.indexOf('musicPlayer');
+      if (index > -1) {
+        popupStack.splice(index, 1);
+      }
+      // Add to top of stack
+      popupStack.push('musicPlayer');
+    } else {
+      const index = popupStack.indexOf('musicPlayer');
+      if (index > -1) {
+        popupStack.splice(index, 1);
+      }
+    }
+  }, []);
 
   // Toggle popup visibility
   const togglePopup = useCallback(() => {
@@ -45,8 +93,12 @@ export default function MusicPopup() {
     setAutoHide(false); // Disable auto-hide when manually toggled
     
     // Dispatch event to notify other components
-    document.dispatchEvent(new CustomEvent('musicPopupStateChanged', { detail: newState }));
-  }, [showPopup]);
+    const event = new CustomEvent('musicPopupStateChanged', { detail: newState });
+    document.dispatchEvent(event);
+    
+    // Update the popup stack
+    updateMusicPopupInStack(newState);
+  }, [showPopup, updateMusicPopupInStack]);
   
   // Listen for Escape key to close popups
   useEffect(() => {
@@ -54,6 +106,7 @@ export default function MusicPopup() {
       if (showPopup) {
         setShowPopup(false);
         document.dispatchEvent(musicPopupClosedEvent);
+        updateMusicPopupInStack(false);
       }
     };
     
@@ -62,7 +115,7 @@ export default function MusicPopup() {
     return () => {
       document.removeEventListener('requestCloseAllPopups', handleCloseAllPopups);
     };
-  }, [showPopup]);
+  }, [showPopup, updateMusicPopupInStack]);
   
   // Listen for toggle event from keyboard shortcut
   useEffect(() => {
@@ -163,6 +216,11 @@ export default function MusicPopup() {
                     onClick={() => {
                       setShowPopup(false);
                       document.dispatchEvent(new CustomEvent('musicPopupStateChanged', { detail: false }));
+                      // Update popup stack
+                      const index = popupStack.indexOf('musicPlayer');
+                      if (index > -1) {
+                        popupStack.splice(index, 1);
+                      }
                     }}
                     className="p-1 -mr-2 -mt-1 rounded-md hover:bg-[rgb(var(--muted))] transition-colors"
                   >
