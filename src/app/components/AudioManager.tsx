@@ -53,6 +53,17 @@ export default function AudioManager({ children }: { children: React.ReactNode }
   const mediaSessionPlayHandlerRef = useRef<(() => void) | null>(null);
   const mediaSessionPauseHandlerRef = useRef<(() => void) | null>(null);
   const attemptPlayOnInteractionRef = useRef<(() => void) | null>(null);
+  const firstToggleDoneRef = useRef<boolean>(false);
+  
+  // Add refs to track state without adding dependencies
+  const isMutedRef = useRef(isMuted);
+  const isPlayingRef = useRef(isPlaying);
+  
+  // Keep the refs in sync with the state
+  useEffect(() => {
+    isMutedRef.current = isMuted;
+    isPlayingRef.current = isPlaying;
+  }, [isMuted, isPlaying]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -82,11 +93,13 @@ export default function AudioManager({ children }: { children: React.ReactNode }
         // Let the audio element directly control state
         // This ensures our React state always reflects the true state of the audio element
         backgroundMusicRef.current.addEventListener('playing', () => {
+          console.log('Audio playing event fired');
           setIsPlaying(true);
           startVisualization();
         });
 
         backgroundMusicRef.current.addEventListener('pause', () => {
+          console.log('Audio pause event fired');
           setIsPlaying(false);
           stopVisualization();
         });
@@ -127,10 +140,14 @@ export default function AudioManager({ children }: { children: React.ReactNode }
       };
       
       attemptPlayOnInteractionRef.current = () => {
-        if (backgroundMusicRef.current && !isPlaying && !isMuted) {
+        // Only attempt to play on interaction if we haven't manually paused (firstToggle)
+        // This fixes the issue where pressing any button after first pause starts playing again
+        if (backgroundMusicRef.current && !isPlayingRef.current && !isMutedRef.current && !firstToggleDoneRef.current) {
+          console.log('Attempting to play on user interaction');
           const playPromise = backgroundMusicRef.current.play();
           if (playPromise !== undefined) {
             playPromise.then(() => {
+              console.log('Play on interaction succeeded');
               setIsPlaying(true);
               if ('mediaSession' in navigator) {
                 navigator.mediaSession.playbackState = 'playing';
@@ -178,6 +195,7 @@ export default function AudioManager({ children }: { children: React.ReactNode }
           const playPromise = backgroundMusicRef.current.play();
           if (playPromise !== undefined) {
             playPromise.then(() => {
+              console.log("Initial autoplay succeeded");
               setIsPlaying(true);
               if ('mediaSession' in navigator) {
                 navigator.mediaSession.playbackState = 'playing';
@@ -312,9 +330,12 @@ export default function AudioManager({ children }: { children: React.ReactNode }
     // This prevents cycles since the audio element's events will update the React state
     const currentlyPlaying = !audio.paused;
     
+    console.log('Play/pause effect triggered:', { isPlaying, currentlyPlaying });
+    
     if (isPlaying !== currentlyPlaying) {
       if (isPlaying) {
         // We want to be playing, but audio is paused
+        console.log('State wants playing, audio is paused - playing now');
         if (audio.loop === false) {
           audio.loop = true;
         }
@@ -332,12 +353,13 @@ export default function AudioManager({ children }: { children: React.ReactNode }
         });
       } else {
         // We want to be paused, but audio is playing
+        console.log('State wants paused, audio is playing - pausing now');
         // This will trigger the 'pause' event which will update the state
         audio.pause();
       }
     }
     // We intentionally omit isMuted from the dependencies
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [isPlaying]);
 
   // Toggle audio mute (affects ALL audio)
@@ -350,10 +372,31 @@ export default function AudioManager({ children }: { children: React.ReactNode }
   const togglePlayPause = () => {
     if (!backgroundMusicRef.current) return;
 
+    console.log('Toggle play/pause called, current paused state:', backgroundMusicRef.current.paused, 'firstToggleDone:', firstToggleDoneRef.current);
+    
+    // Special handling for the first toggle (first pause action)
+    if (!firstToggleDoneRef.current && !backgroundMusicRef.current.paused) {
+      console.log('First toggle detected - ensuring pause works correctly');
+      backgroundMusicRef.current.pause();
+      setIsPlaying(false);
+      firstToggleDoneRef.current = true;
+      
+      // Update MediaSession API state
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = 'paused';
+      }
+      
+      // Notify other components about the change
+      document.dispatchEvent(new CustomEvent('audio-playpause-toggled'));
+      return;
+    }
+    
+    // After first toggle, this is normal behavior
     // Directly control the audio element based on its current state
     // The audio element events will update the React state
     if (backgroundMusicRef.current.paused) {
       // Audio is paused, so play it
+      console.log('Audio is paused, attempting to play');
       if (audioContextRef.current?.state === 'suspended') {
         audioContextRef.current.resume();
       }
@@ -370,13 +413,18 @@ export default function AudioManager({ children }: { children: React.ReactNode }
       });
     } else {
       // Audio is playing, so pause it
+      console.log('Audio is playing, pausing now');
       backgroundMusicRef.current.pause();
+      // Force React state update in case the pause event doesn't fire properly
+      setIsPlaying(false);
       
       // Update MediaSession API state
       if ('mediaSession' in navigator) {
         navigator.mediaSession.playbackState = 'paused';
       }
     }
+    
+    firstToggleDoneRef.current = true;
     
     // Notify other components about the change
     document.dispatchEvent(new CustomEvent('audio-playpause-toggled'));
