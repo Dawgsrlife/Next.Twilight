@@ -18,6 +18,7 @@ export default function MusicPopup() {
   // Start with the popup open by default
   const [showPopup, setShowPopup] = useState(true);
   const [autoHide, setAutoHide] = useState(true);
+  const [muteToggleDetected, setMuteToggleDetected] = useState(false); // Track mute toggle events
   const [trackInfo, setTrackInfo] = useState({
     title: "Chill Lofi Beats",
     artist: "Next.js Twilight",
@@ -48,11 +49,32 @@ export default function MusicPopup() {
     }
   }, []);
   
-  // Show popup when music status changes, only if autoHide is enabled
+  // Listen for mute toggle events from AudioManager
   useEffect(() => {
-    if (!autoHide) return; // Skip auto-show/hide if disabled
+    // Create a listener that will be triggered when mute state changes
+    const handleMuteChange = () => {
+      setMuteToggleDetected(true);
+      
+      // Reset the flag after a short delay to allow for future detections
+      setTimeout(() => {
+        setMuteToggleDetected(false);
+      }, 100);
+    };
     
-    // Any change in playback status should trigger the popup
+    // Listen for changes in the isMuted state
+    document.addEventListener('audio-mute-toggled', handleMuteChange);
+    
+    return () => {
+      document.removeEventListener('audio-mute-toggled', handleMuteChange);
+    };
+  }, []);
+  
+  // Show popup when music status changes, only if autoHide is enabled and not triggered by CTRL+M
+  useEffect(() => {
+    if (!autoHide || muteToggleDetected) return; // Skip auto-show/hide if disabled or if mute toggle detected
+    
+    // Status changes that should trigger the popup
+    // Note: We specifically don't want CTRL+M (mute toggle) to trigger this
     setShowPopup(true);
     
     // If just became visible, update the popup stack
@@ -75,7 +97,7 @@ export default function MusicPopup() {
     }, 8000);
     
     return () => clearTimeout(timer);
-  }, [isPlaying, isMuted, autoHide]);
+  }, [isPlaying, isMuted, autoHide, muteToggleDetected]);
 
   // Update the popup stack when music popup state changes
   const updateMusicPopupInStack = useCallback((isOpen: boolean) => {

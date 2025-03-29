@@ -24,11 +24,14 @@ const AudioContext = createContext<AudioContextType>({
   audioData: null,
 });
 
+// Custom event for audio mute toggle
+export const audioMuteToggledEvent = new CustomEvent('audio-mute-toggled');
+
 // Custom hook for using audio context
 export const useAudio = () => useContext(AudioContext);
 
 export default function AudioManager({ children }: { children: React.ReactNode }) {
-  const [isMuted, setIsMuted] = useState(true); // Start muted by default
+  const [isMuted, setIsMuted] = useState(false); // Start unmuted by default
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioData, setAudioData] = useState<Uint8Array | null>(null);
   
@@ -94,16 +97,48 @@ export default function AudioManager({ children }: { children: React.ReactNode }
         });
       }
       
-      // Try to play background music (might be blocked by browser)
-      if (!isMuted) {
-        const playPromise = backgroundMusicRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(e => {
-            console.log("Auto-play prevented. User interaction needed to start audio:", e);
-            setIsMuted(true);
-          });
+      // Adding a timeout to try to play audio after a brief delay
+      // This increases the chances of autoplay working in some browsers
+      setTimeout(() => {
+        // Try to play background music when component mounts
+        if (backgroundMusicRef.current) {
+          // First try to resume the audio context if needed
+          if (audioContextRef.current?.state === 'suspended') {
+            audioContextRef.current.resume().catch(e => {
+              console.log("Audio context resume failed:", e);
+            });
+          }
+          
+          // Then try to play the audio
+          const playPromise = backgroundMusicRef.current.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(e => {
+              console.log("Auto-play prevented. User interaction needed to start audio:", e);
+              setIsMuted(true); // Set to muted if autoplay fails
+            });
+          }
         }
-      }
+      }, 100);
+      
+      // Also attempt to play on user interaction with the page
+      const attemptPlayOnInteraction = () => {
+        if (backgroundMusicRef.current && isMuted) {
+          setIsMuted(false);
+          backgroundMusicRef.current.play().catch(e => {
+            console.error("Play on interaction failed:", e);
+          });
+          // Remove the event listeners after first interaction
+          document.removeEventListener('click', attemptPlayOnInteraction);
+          document.removeEventListener('keydown', attemptPlayOnInteraction);
+          document.removeEventListener('touchstart', attemptPlayOnInteraction);
+        }
+      };
+      
+      // Add event listeners for user interaction
+      document.addEventListener('click', attemptPlayOnInteraction);
+      document.addEventListener('keydown', attemptPlayOnInteraction);
+      document.addEventListener('touchstart', attemptPlayOnInteraction);
+      
     } catch (error) {
       console.error("Failed to initialize audio:", error);
     }
@@ -140,6 +175,11 @@ export default function AudioManager({ children }: { children: React.ReactNode }
         audioContextRef.current.close().catch(e => console.error('Error closing audio context:', e));
         audioContextRef.current = null;
       }
+      
+      // Remove interaction event listeners
+      document.removeEventListener('click', () => {});
+      document.removeEventListener('keydown', () => {});
+      document.removeEventListener('touchstart', () => {});
     };
   }, []);
   
@@ -199,6 +239,11 @@ export default function AudioManager({ children }: { children: React.ReactNode }
   
   // Toggle mute function
   const toggleMute = () => {
+    // Dispatch an event to notify that muting was toggled 
+    // (so MusicPopup won't show itself when CTRL+M is used)
+    document.dispatchEvent(new CustomEvent('audio-mute-toggled'));
+    
+    // Toggle the mute state
     setIsMuted(prev => !prev);
   };
   
