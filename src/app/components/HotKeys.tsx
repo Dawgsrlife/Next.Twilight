@@ -20,7 +20,7 @@ export default function HotKeys() {
   const { toggleMute, isMuted } = useAudio();
   const router = useRouter();
   const [showHotkeys, setShowHotkeys] = useState(false);
-  const [musicPlayerOpen, setMusicPlayerOpen] = useState(false);
+  const [musicPlayerOpen, setMusicPlayerOpen] = useState(true); // Default to true since MusicPopup starts open
   const [musicButtonVisible, setMusicButtonVisible] = useState(true);
   
   // Function to toggle music player via event
@@ -30,30 +30,10 @@ export default function HotKeys() {
   
   // Track popup states for layering
   useEffect(() => {
-    // Check for initial music player state
-    const checkInitialMusicPlayerState = () => {
-      const musicPlayer = document.querySelector('[class*="fixed right-24 z-40"]');
-      const isInitiallyOpen = !!musicPlayer;
-      
-      if (isInitiallyOpen && !popupStack.includes('musicPlayer')) {
-        popupStack.push('musicPlayer');
-        setMusicPlayerOpen(true);
-      }
-    };
-    
-    // Update the popup stack when hotkeys panel state changes
-    const updateHotkeysInStack = (isOpen: boolean) => {
-      if (isOpen) {
-        if (!popupStack.includes('hotkeys')) {
-          popupStack.push('hotkeys');
-        }
-      } else {
-        const index = popupStack.indexOf('hotkeys');
-        if (index > -1) {
-          popupStack.splice(index, 1);
-        }
-      }
-    };
+    // Initialize music player in the popup stack since it starts open
+    if (!popupStack.includes('musicPlayer')) {
+      popupStack.push('musicPlayer');
+    }
     
     // Listen for music player state changes
     const handleMusicPlayerState = (e: Event) => {
@@ -87,12 +67,27 @@ export default function HotKeys() {
       setMusicButtonVisible(!!musicButton);
     };
     
-    // Set initial state
+    // Check for hotkeys panel visibility
+    const updateHotkeysInStack = (isOpen: boolean) => {
+      if (isOpen) {
+        if (!popupStack.includes('hotkeys')) {
+          popupStack.push('hotkeys');
+        }
+      } else {
+        const index = popupStack.indexOf('hotkeys');
+        if (index > -1) {
+          popupStack.splice(index, 1);
+        }
+      }
+    };
+    
+    // Setup initial state
     updateHotkeysInStack(showHotkeys);
     checkMusicButtonVisibility();
     
-    // Wait for DOM to be ready before checking initial music player state
-    setTimeout(checkInitialMusicPlayerState, 500);
+    // Add event listeners
+    document.addEventListener('musicPopupStateChanged', handleMusicPlayerState);
+    document.addEventListener('musicPopupClosed', handleMusicPlayerClosed);
     
     // Set up a mutation observer to watch for music button presence
     const observer = new MutationObserver(() => {
@@ -100,10 +95,6 @@ export default function HotKeys() {
     });
     
     observer.observe(document.body, { childList: true, subtree: true });
-    
-    // Add event listeners
-    document.addEventListener('musicPopupStateChanged', handleMusicPlayerState);
-    document.addEventListener('musicPopupClosed', handleMusicPlayerClosed);
     
     // Cleanup
     return () => {

@@ -10,9 +10,13 @@ export const musicPopupStateEvent = new CustomEvent('musicPopupStateChanged', { 
 export const musicPopupClosedEvent = new CustomEvent('musicPopupClosed');
 export const requestCloseAllPopupsEvent = new CustomEvent('requestCloseAllPopups');
 
+// Set a global variable to track if this is the first render
+let isFirstRender = true;
+
 export default function MusicPopup() {
   const { isPlaying, isMuted, toggleMute, audioData } = useAudio();
-  const [showPopup, setShowPopup] = useState(false);
+  // Start with the popup open by default
+  const [showPopup, setShowPopup] = useState(true);
   const [autoHide, setAutoHide] = useState(true);
   const [trackInfo, setTrackInfo] = useState({
     title: "Chill Lofi Beats",
@@ -23,20 +27,25 @@ export default function MusicPopup() {
   // Track current beat for animation
   const [beat, setBeat] = useState(0);
   
-  // Add to popup stack on initial render if visible
+  // Announce initial state to all components
   useEffect(() => {
-    // Add a small delay to ensure component is mounted
-    const initialTimer = setTimeout(() => {
-      if (showPopup && !popupStack.includes('musicPlayer')) {
+    if (isFirstRender) {
+      // Add to popup stack on initial render
+      if (!popupStack.includes('musicPlayer')) {
         popupStack.push('musicPlayer');
-        
-        // Dispatch event to notify other components of initial state
-        const event = new CustomEvent('musicPopupStateChanged', { detail: true });
-        document.dispatchEvent(event);
       }
-    }, 100);
-    
-    return () => clearTimeout(initialTimer);
+      
+      // Create a custom event with the initial state
+      const initialStateEvent = new CustomEvent('musicPopupStateChanged', { detail: true });
+      
+      // Wait a bit to ensure other components have mounted
+      setTimeout(() => {
+        document.dispatchEvent(initialStateEvent);
+      }, 100);
+      
+      // Set the flag to false so this only runs once
+      isFirstRender = false;
+    }
   }, []);
   
   // Show popup when music status changes, only if autoHide is enabled
