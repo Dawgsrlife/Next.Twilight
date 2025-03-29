@@ -9,12 +9,18 @@ import Button from "../components/ui/Button";
 import { useTutorialStore } from "../store/tutorialStore";
 import { pageTransition, fadeInUp } from "../animations/variants";
 
+// Define allowed color types
+type ColorType = "indigo" | "blue" | "red" | "green" | "purple" | "amber";
+type SizeType = "sm" | "md" | "lg";
+type RoundedType = "none" | "sm" | "md" | "lg" | "full";
+type ShadowType = "none" | "sm" | "md" | "lg" | "xl";
+
 export default function TailwindPage() {
   const { setActiveTutorial, completeTutorial } = useTutorialStore();
-  const [color, setColor] = useState("indigo");
-  const [size, setSize] = useState("md");
-  const [rounded, setRounded] = useState("md");
-  const [shadow, setShadow] = useState("md");
+  const [color, setColor] = useState<ColorType>("indigo");
+  const [size, setSize] = useState<SizeType>("md");
+  const [rounded, setRounded] = useState<RoundedType>("md");
+  const [shadow, setShadow] = useState<ShadowType>("md");
   
   const colors = {
     indigo: "bg-indigo-500 hover:bg-indigo-600",
@@ -198,7 +204,7 @@ export default function TailwindPage() {
                 <label className="block text-sm font-medium mb-2">Color</label>
                 <select 
                   value={color}
-                  onChange={(e) => setColor(e.target.value)}
+                  onChange={(e) => setColor(e.target.value as ColorType)}
                   className="bg-[rgb(var(--background))] border border-[rgb(var(--input))] rounded-md p-2"
                 >
                   <option value="indigo">Indigo</option>
@@ -214,7 +220,7 @@ export default function TailwindPage() {
                 <label className="block text-sm font-medium mb-2">Size</label>
                 <select 
                   value={size}
-                  onChange={(e) => setSize(e.target.value)}
+                  onChange={(e) => setSize(e.target.value as SizeType)}
                   className="bg-[rgb(var(--background))] border border-[rgb(var(--input))] rounded-md p-2"
                 >
                   <option value="sm">Small</option>
@@ -227,7 +233,7 @@ export default function TailwindPage() {
                 <label className="block text-sm font-medium mb-2">Rounded</label>
                 <select 
                   value={rounded}
-                  onChange={(e) => setRounded(e.target.value)}
+                  onChange={(e) => setRounded(e.target.value as RoundedType)}
                   className="bg-[rgb(var(--background))] border border-[rgb(var(--input))] rounded-md p-2"
                 >
                   <option value="none">None</option>
@@ -242,7 +248,7 @@ export default function TailwindPage() {
                 <label className="block text-sm font-medium mb-2">Shadow</label>
                 <select 
                   value={shadow}
-                  onChange={(e) => setShadow(e.target.value)}
+                  onChange={(e) => setShadow(e.target.value as ShadowType)}
                   className="bg-[rgb(var(--background))] border border-[rgb(var(--input))] rounded-md p-2"
                 >
                   <option value="none">None</option>

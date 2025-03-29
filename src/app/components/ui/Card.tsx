@@ -1,7 +1,7 @@
-import React, { HTMLAttributes } from "react";
-import { motion, MotionProps } from "framer-motion";
+import React from "react";
+import { motion, HTMLMotionProps } from "framer-motion";
 
-interface CardProps extends HTMLAttributes<HTMLDivElement>, MotionProps {
+interface CardProps extends Omit<HTMLMotionProps<"div">, "children"> {
   title?: string;
   icon?: React.ReactNode;
   children: React.ReactNode;
