@@ -26,7 +26,7 @@ export default function EasterEgg() {
       playEasterEggSound().catch(() => {
         // Silent catch - don't let audio errors affect the visual experience
       });
-    } catch (e) {
+    } catch {
       // Silent catch - just ensure the Easter egg animation still works
       console.log("Audio playback error suppressed");
     }
@@ -35,7 +35,7 @@ export default function EasterEgg() {
     setTimeout(() => {
       try {
         stopEasterEggSound(true); // true for fade out
-      } catch (e) {
+      } catch {
         // Ensure animation cleanup happens even if audio fails
       }
       setShowEasterEgg(false);

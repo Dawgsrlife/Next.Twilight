@@ -113,8 +113,14 @@ export default function AudioManager({ children }: { children: React.ReactNode }
           const playPromise = backgroundMusicRef.current.play();
           if (playPromise !== undefined) {
             playPromise.catch(e => {
-              console.log("Auto-play prevented. User interaction needed to start audio:", e);
-              setIsMuted(true); // Set to muted if autoplay fails
+              // Don't log abort errors but handle autoplay prevention
+              if (e.name === 'NotAllowedError') {
+                console.log("Auto-play prevented. User interaction needed to start audio.");
+                setIsMuted(true); // Set to muted if autoplay fails
+              } else if (e.name !== 'AbortError') {
+                console.log("Audio playback error:", e);
+                setIsMuted(true); // Set to muted for other errors too
+              }
             });
           }
         }
@@ -231,7 +237,10 @@ export default function AudioManager({ children }: { children: React.ReactNode }
       const playPromise = backgroundMusicRef.current.play();
       if (playPromise !== undefined) {
         playPromise.catch(e => {
-          console.error("Background music play failed:", e);
+          // Don't log abort errors since they're usually just from navigation
+          if (e.name !== 'AbortError') {
+            console.error("Background music play failed:", e);
+          }
         });
       }
     }
@@ -321,11 +330,17 @@ export default function AudioManager({ children }: { children: React.ReactNode }
       
       if (playPromise !== undefined) {
         playPromise.catch(e => {
-          console.error("Background music resume failed:", e);
+          // Only log non-abort errors
+          if (e.name !== 'AbortError') {
+            console.error("Background music resume failed:", e);
+          }
         });
       }
     } catch (e) {
-      console.error("Background music resume error:", e);
+      // Only log non-abort errors
+      if (e instanceof Error && e.name !== 'AbortError') {
+        console.error("Background music resume error:", e);
+      }
     }
   };
   
