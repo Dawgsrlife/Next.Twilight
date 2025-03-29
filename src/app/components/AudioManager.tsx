@@ -79,17 +79,15 @@ export default function AudioManager({ children }: { children: React.ReactNode }
       easterEggSoundRef.current.load();
 
       if (backgroundMusicRef.current) {
-        // We need to add event listeners before attempting to play
-        // But they should not directly update state to avoid circular updates
+        // Let the audio element directly control state
+        // This ensures our React state always reflects the true state of the audio element
         backgroundMusicRef.current.addEventListener('playing', () => {
-          // Don't update React state from HTML audio events
-          // This just enables visualization when audio is playing
+          setIsPlaying(true);
           startVisualization();
         });
 
         backgroundMusicRef.current.addEventListener('pause', () => {
-          // Don't update React state from HTML audio events
-          // This just disables visualization when audio is paused
+          setIsPlaying(false);
           stopVisualization();
         });
 
@@ -310,12 +308,10 @@ export default function AudioManager({ children }: { children: React.ReactNode }
     const audio = backgroundMusicRef.current;
     if (!audio) return;
 
-    // This effect only syncs the audio element with our React state
-    // It should not trigger state changes itself
-    
+    // Only update the audio element if its current state doesn't match our React state
+    // This prevents cycles since the audio element's events will update the React state
     const currentlyPlaying = !audio.paused;
     
-    // Only take action if there's a mismatch between desired state and current audio state
     if (isPlaying !== currentlyPlaying) {
       if (isPlaying) {
         // We want to be playing, but audio is paused
@@ -327,20 +323,20 @@ export default function AudioManager({ children }: { children: React.ReactNode }
           audioContextRef.current.resume();
         }
         
-        // Explicitly avoid capturing the promise to prevent unwanted state updates
+        // Play the audio without capturing the promise
+        // This will trigger the 'playing' event which will update the state
         audio.play().catch(e => {
-          // Only log errors, don't update state here to avoid cycles
           if (e.name !== 'AbortError') {
             console.error("Play failed in effect:", e);
           }
         });
       } else {
         // We want to be paused, but audio is playing
+        // This will trigger the 'pause' event which will update the state
         audio.pause();
       }
     }
-    // We intentionally omit isMuted and isPlaying from the dependencies
-    // to prevent cycles, as this is a sync effect
+    // We intentionally omit isMuted from the dependencies
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPlaying]);
 
@@ -354,47 +350,31 @@ export default function AudioManager({ children }: { children: React.ReactNode }
   const togglePlayPause = () => {
     if (!backgroundMusicRef.current) return;
 
-    // Determine current state and desired new state
-    const currentlyPlaying = !backgroundMusicRef.current.paused;
-    const shouldPlay = !currentlyPlaying;
-    
-    // First update state to match what we want
-    setIsPlaying(shouldPlay);
-    
-    // Then perform the audio operation
-    if (shouldPlay) {
-      // Need to play the audio
-      if (backgroundMusicRef.current.paused) {
-        // Play if it's currently paused
-        if (audioContextRef.current?.state === 'suspended') {
-          audioContextRef.current.resume();
-        }
-        
-        const playPromise = backgroundMusicRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(e => {
-            if (e.name !== 'AbortError') {
-              console.error("Play failed:", e);
-              // If failed, revert state
-              setIsPlaying(false);
-              
-              // Update MediaSession API state
-              if ('mediaSession' in navigator) {
-                navigator.mediaSession.playbackState = 'paused';
-              }
-            }
-          });
-        }
+    // Directly control the audio element based on its current state
+    // The audio element events will update the React state
+    if (backgroundMusicRef.current.paused) {
+      // Audio is paused, so play it
+      if (audioContextRef.current?.state === 'suspended') {
+        audioContextRef.current.resume();
       }
-    } else {
-      // Need to pause the audio
-      if (!backgroundMusicRef.current.paused) {
-        backgroundMusicRef.current.pause();
-        
-        // Update MediaSession API state
-        if ('mediaSession' in navigator) {
-          navigator.mediaSession.playbackState = 'paused';
+      
+      backgroundMusicRef.current.play().catch(e => {
+        if (e.name !== 'AbortError') {
+          console.error("Play failed:", e);
+          
+          // Update MediaSession API state
+          if ('mediaSession' in navigator) {
+            navigator.mediaSession.playbackState = 'paused';
+          }
         }
+      });
+    } else {
+      // Audio is playing, so pause it
+      backgroundMusicRef.current.pause();
+      
+      // Update MediaSession API state
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = 'paused';
       }
     }
     
