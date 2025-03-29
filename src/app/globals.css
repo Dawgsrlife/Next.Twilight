@@ -1,26 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Light mode - Twilight inspired */
+  --background: 248, 250, 252;
+  --foreground: 30, 41, 59;
+  --card: 255, 255, 255;
+  --card-foreground: 30, 41, 59;
+  --popover: 255, 255, 255;
+  --popover-foreground: 30, 41, 59;
+  --primary: 79, 70, 229;
+  --primary-foreground: 255, 255, 255;
+  --secondary: 241, 245, 249;
+  --secondary-foreground: 30, 41, 59;
+  --muted: 241, 245, 249;
+  --muted-foreground: 100, 116, 139;
+  --accent: 240, 253, 244;
+  --accent-foreground: 20, 83, 45;
+  --destructive: 239, 68, 68;
+  --destructive-foreground: 255, 255, 255;
+  --border: 226, 232, 240;
+  --input: 226, 232, 240;
+  --ring: 79, 70, 229;
+  --radius: 0.5rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.dark {
+  /* Dark mode - Twilight inspired */
+  --background: 15, 23, 42;
+  --foreground: 241, 245, 249;
+  --card: 30, 41, 59;
+  --card-foreground: 241, 245, 249;
+  --popover: 30, 41, 59;
+  --popover-foreground: 241, 245, 249;
+  --primary: 125, 93, 229;
+  --primary-foreground: 255, 255, 255;
+  --secondary: 51, 65, 85;
+  --secondary-foreground: 241, 245, 249;
+  --muted: 51, 65, 85;
+  --muted-foreground: 148, 163, 184;
+  --accent: 55, 48, 163;
+  --accent-foreground: 244, 244, 255;
+  --destructive: 248, 113, 113;
+  --destructive-foreground: 255, 255, 255;
+  --border: 51, 65, 85;
+  --input: 51, 65, 85;
+  --ring: 125, 93, 229;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: rgb(var(--background));
+  color: rgb(var(--foreground));
+}
+
+@layer base {
+  * {
+    @apply border-[rgb(var(--border))];
+  }
+  body {
+    @apply bg-[rgb(var(--background))] text-[rgb(var(--foreground))];
+  }
 }
