@@ -30,7 +30,7 @@ export default function Button({
     ghost: "hover:bg-[rgb(var(--muted))] text-[rgb(var(--foreground))]",
     link: "text-[rgb(var(--primary))] underline-offset-4 hover:underline",
     destructive: "bg-[rgb(var(--destructive))] text-[rgb(var(--destructive-foreground))] hover:bg-[rgb(var(--destructive))]/90",
-    success: "bg-green-600 text-white hover:bg-green-700",
+    success: "bg-emerald-600 text-[rgb(var(--primary-foreground))] hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600",
   };
   
   const sizeStyles = {

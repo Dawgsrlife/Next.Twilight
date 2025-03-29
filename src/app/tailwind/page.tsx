@@ -141,21 +141,21 @@ export default function TailwindPage() {
             <Card title="Utility Classes">
               <p className="mb-2">Small, single-purpose classes:</p>
               <ul className="list-disc pl-6 space-y-2">
-                <li><code className="bg-muted px-1 py-0.5 rounded">text-lg</code> - Set font size to large</li>
-                <li><code className="bg-muted px-1 py-0.5 rounded">font-bold</code> - Apply bold font weight</li>
-                <li><code className="bg-muted px-1 py-0.5 rounded">p-4</code> - Add padding on all sides</li>
-                <li><code className="bg-muted px-1 py-0.5 rounded">mb-2</code> - Add margin to bottom</li>
-                <li><code className="bg-muted px-1 py-0.5 rounded">flex</code> - Use flexbox layout</li>
-                <li><code className="bg-muted px-1 py-0.5 rounded">items-center</code> - Center items vertically</li>
+                <li><code className="bg-[rgb(var(--muted))] px-1 py-0.5 rounded">text-lg</code> - Set font size to large</li>
+                <li><code className="bg-[rgb(var(--muted))] px-1 py-0.5 rounded">font-bold</code> - Apply bold font weight</li>
+                <li><code className="bg-[rgb(var(--muted))] px-1 py-0.5 rounded">p-4</code> - Add padding on all sides</li>
+                <li><code className="bg-[rgb(var(--muted))] px-1 py-0.5 rounded">mb-2</code> - Add margin to bottom</li>
+                <li><code className="bg-[rgb(var(--muted))] px-1 py-0.5 rounded">flex</code> - Use flexbox layout</li>
+                <li><code className="bg-[rgb(var(--muted))] px-1 py-0.5 rounded">items-center</code> - Center items vertically</li>
               </ul>
             </Card>
             <Card title="Responsive Design">
               <p className="mb-2">Responsive modifiers for different screen sizes:</p>
               <ul className="list-disc pl-6 space-y-2">
-                <li><code className="bg-muted px-1 py-0.5 rounded">sm:flex</code> - Flex on small screens and up</li>
-                <li><code className="bg-muted px-1 py-0.5 rounded">md:w-1/2</code> - Half width on medium screens</li>
-                <li><code className="bg-muted px-1 py-0.5 rounded">lg:text-xl</code> - Extra large text on large screens</li>
-                <li><code className="bg-muted px-1 py-0.5 rounded">xl:p-8</code> - More padding on extra large screens</li>
+                <li><code className="bg-[rgb(var(--muted))] px-1 py-0.5 rounded">sm:flex</code> - Flex on small screens and up</li>
+                <li><code className="bg-[rgb(var(--muted))] px-1 py-0.5 rounded">md:w-1/2</code> - Half width on medium screens</li>
+                <li><code className="bg-[rgb(var(--muted))] px-1 py-0.5 rounded">lg:text-xl</code> - Extra large text on large screens</li>
+                <li><code className="bg-[rgb(var(--muted))] px-1 py-0.5 rounded">xl:p-8</code> - More padding on extra large screens</li>
               </ul>
             </Card>
           </div>
@@ -164,18 +164,18 @@ export default function TailwindPage() {
             <Card title="Hover, Focus, and Other States">
               <p className="mb-2">State modifiers:</p>
               <ul className="list-disc pl-6 space-y-2">
-                <li><code className="bg-muted px-1 py-0.5 rounded">hover:bg-blue-700</code> - Blue background on hover</li>
-                <li><code className="bg-muted px-1 py-0.5 rounded">focus:outline-none</code> - Remove outline on focus</li>
-                <li><code className="bg-muted px-1 py-0.5 rounded">active:bg-blue-800</code> - Darker blue when active</li>
-                <li><code className="bg-muted px-1 py-0.5 rounded">disabled:opacity-50</code> - Reduce opacity when disabled</li>
+                <li><code className="bg-[rgb(var(--muted))] px-1 py-0.5 rounded">hover:bg-blue-700</code> - Blue background on hover</li>
+                <li><code className="bg-[rgb(var(--muted))] px-1 py-0.5 rounded">focus:outline-none</code> - Remove outline on focus</li>
+                <li><code className="bg-[rgb(var(--muted))] px-1 py-0.5 rounded">active:bg-blue-800</code> - Darker blue when active</li>
+                <li><code className="bg-[rgb(var(--muted))] px-1 py-0.5 rounded">disabled:opacity-50</code> - Reduce opacity when disabled</li>
               </ul>
             </Card>
             <Card title="Dark Mode">
               <p className="mb-2">Dark mode support:</p>
               <ul className="list-disc pl-6 space-y-2">
-                <li><code className="bg-muted px-1 py-0.5 rounded">dark:bg-gray-800</code> - Dark background in dark mode</li>
-                <li><code className="bg-muted px-1 py-0.5 rounded">dark:text-white</code> - White text in dark mode</li>
-                <li><code className="bg-muted px-1 py-0.5 rounded">dark:border-gray-700</code> - Dark border in dark mode</li>
+                <li><code className="bg-[rgb(var(--muted))] px-1 py-0.5 rounded">dark:bg-gray-800</code> - Dark background in dark mode</li>
+                <li><code className="bg-[rgb(var(--muted))] px-1 py-0.5 rounded">dark:text-white</code> - White text in dark mode</li>
+                <li><code className="bg-[rgb(var(--muted))] px-1 py-0.5 rounded">dark:border-gray-700</code> - Dark border in dark mode</li>
               </ul>
             </Card>
           </div>
@@ -190,7 +190,7 @@ export default function TailwindPage() {
         >
           <h2 className="text-2xl font-bold mb-6">Interactive Playground</h2>
           
-          <div className="p-6 bg-card border border-border rounded-lg mb-8">
+          <div className="p-6 bg-[rgb(var(--card))] border border-[rgb(var(--border))] rounded-lg mb-8">
             <h3 className="text-xl font-semibold mb-4">Customize Button</h3>
             
             <div className="flex flex-wrap gap-4 mb-6">
@@ -199,7 +199,7 @@ export default function TailwindPage() {
                 <select 
                   value={color}
                   onChange={(e) => setColor(e.target.value)}
-                  className="bg-background border border-input rounded-md p-2"
+                  className="bg-[rgb(var(--background))] border border-[rgb(var(--input))] rounded-md p-2"
                 >
                   <option value="indigo">Indigo</option>
                   <option value="blue">Blue</option>
@@ -215,7 +215,7 @@ export default function TailwindPage() {
                 <select 
                   value={size}
                   onChange={(e) => setSize(e.target.value)}
-                  className="bg-background border border-input rounded-md p-2"
+                  className="bg-[rgb(var(--background))] border border-[rgb(var(--input))] rounded-md p-2"
                 >
                   <option value="sm">Small</option>
                   <option value="md">Medium</option>
@@ -228,7 +228,7 @@ export default function TailwindPage() {
                 <select 
                   value={rounded}
                   onChange={(e) => setRounded(e.target.value)}
-                  className="bg-background border border-input rounded-md p-2"
+                  className="bg-[rgb(var(--background))] border border-[rgb(var(--input))] rounded-md p-2"
                 >
                   <option value="none">None</option>
                   <option value="sm">Small</option>
@@ -243,7 +243,7 @@ export default function TailwindPage() {
                 <select 
                   value={shadow}
                   onChange={(e) => setShadow(e.target.value)}
-                  className="bg-background border border-input rounded-md p-2"
+                  className="bg-[rgb(var(--background))] border border-[rgb(var(--input))] rounded-md p-2"
                 >
                   <option value="none">None</option>
                   <option value="sm">Small</option>
@@ -257,7 +257,7 @@ export default function TailwindPage() {
             <div className="flex flex-col gap-6">
               <div className="flex justify-center">
                 <button 
-                  className={`text-white font-medium ${colors[color]} ${sizes[size]} ${roundedVariants[rounded]} ${shadowVariants[shadow]}`}
+                  className={`text-[rgb(var(--primary-foreground))] font-medium ${colors[color]} ${sizes[size]} ${roundedVariants[rounded]} ${shadowVariants[shadow]}`}
                 >
                   Click Me
                 </button>
@@ -265,7 +265,7 @@ export default function TailwindPage() {
               
               <CodeBlock
                 language="html"
-                code={`<button class="text-white font-medium ${colors[color]} ${sizes[size]} ${roundedVariants[rounded]} ${shadowVariants[shadow]}">
+                code={`<button class="text-[rgb(var(--primary-foreground))] font-medium ${colors[color]} ${sizes[size]} ${roundedVariants[rounded]} ${shadowVariants[shadow]}">
   Click Me
 </button>`}
               />

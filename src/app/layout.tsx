@@ -5,6 +5,9 @@ import Header from "./components/Header";
 import { AnimatePresence } from "framer-motion";
 import ThemeProvider from "./components/ThemeProvider";
 import Footer from "./components/Footer";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import HotKeys from "./components/HotKeys";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,6 +45,9 @@ export default function RootLayout({
             </AnimatePresence>
           </div>
           <Footer />
+          <HotKeys />
+          <Analytics />
+          <SpeedInsights />
         </ThemeProvider>
       </body>
     </html>

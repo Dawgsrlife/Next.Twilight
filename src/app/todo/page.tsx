@@ -237,7 +237,7 @@ export default function TodoPage() {
                   onClick={() => setFilter("all")}
                   className={`px-3 py-1 text-sm rounded-md transition-colors ${
                     filter === "all"
-                      ? "bg-[rgb(var(--primary))] text-white"
+                      ? "bg-[rgb(var(--primary))] text-[rgb(var(--primary-foreground))]"
                       : "hover:bg-[rgb(var(--muted))]"
                   }`}
                 >
@@ -247,7 +247,7 @@ export default function TodoPage() {
                   onClick={() => setFilter("active")}
                   className={`px-3 py-1 text-sm rounded-md transition-colors ${
                     filter === "active"
-                      ? "bg-[rgb(var(--primary))] text-white"
+                      ? "bg-[rgb(var(--primary))] text-[rgb(var(--primary-foreground))]"
                       : "hover:bg-[rgb(var(--muted))]"
                   }`}
                 >
@@ -257,7 +257,7 @@ export default function TodoPage() {
                   onClick={() => setFilter("completed")}
                   className={`px-3 py-1 text-sm rounded-md transition-colors ${
                     filter === "completed"
-                      ? "bg-[rgb(var(--primary))] text-white"
+                      ? "bg-[rgb(var(--primary))] text-[rgb(var(--primary-foreground))]"
                       : "hover:bg-[rgb(var(--muted))]"
                   }`}
                 >

@@ -19,14 +19,14 @@ export function Card({
 }: CardProps) {
   return (
     <motion.div
-      className={`bg-card text-card-foreground rounded-lg border border-border shadow-sm ${
+      className={`bg-[rgb(var(--card))] text-[rgb(var(--card-foreground))] rounded-lg border border-[rgb(var(--border))] shadow-sm ${
         hover ? "hover:shadow-md transition-shadow" : ""
       } ${className}`}
       {...props}
     >
       {(title || icon) && (
         <div className="flex flex-row items-center space-x-2 p-6 pb-2">
-          {icon && <div className="text-primary">{icon}</div>}
+          {icon && <div className="text-[rgb(var(--primary))]">{icon}</div>}
           {title && <h3 className="text-lg font-semibold">{title}</h3>}
         </div>
       )}

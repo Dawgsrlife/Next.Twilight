@@ -263,15 +263,28 @@ const variants = {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="modal-overlay"
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      onClick={() => setIsModalOpen(false)}
     >
       <motion.div
-        initial={{ y: 50 }}
-        animate={{ y: 0 }}
-        exit={{ y: 50 }}
-        className="modal"
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 50, opacity: 0 }}
+        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+        className="bg-[rgb(var(--card))] text-[rgb(var(--card-foreground))] p-6 rounded-lg max-w-md w-full m-4"
+        onClick={(e) => e.stopPropagation()}
       >
-        Modal content
+        <h2 className="text-xl font-bold mb-2">Framer Motion Modal</h2>
+        <p className="mb-4">
+          This modal is built with Framer Motion's
+          <code className="bg-[rgb(var(--muted))] px-1 py-0.5 rounded mx-1">AnimatePresence</code>
+          component, which allows it to smoothly animate when entering and exiting the DOM.
+        </p>
+        <div className="flex justify-end">
+          <Button onClick={() => setIsModalOpen(false)}>
+            Close Modal
+          </Button>
+        </div>
       </motion.div>
     </motion.div>
   )}
@@ -297,7 +310,7 @@ const variants = {
                 <select 
                   value={animation}
                   onChange={(e) => setAnimation(e.target.value)}
-                  className="bg-background border border-input rounded-md p-2 w-full"
+                  className="bg-[rgb(var(--background))] border border-[rgb(var(--input))] rounded-md p-2 w-full"
                 >
                   <option value="fade">Fade</option>
                   <option value="scale">Scale</option>
@@ -307,10 +320,10 @@ const variants = {
                 </select>
               </div>
               
-              <div className="h-40 border border-border rounded-lg flex justify-center items-center mb-4">
+              <div className="h-40 border border-[rgb(var(--border))] rounded-lg flex justify-center items-center mb-4">
                 <motion.div 
                   ref={scope}
-                  className="w-24 h-24 bg-primary/80 rounded-lg flex items-center justify-center text-white font-bold"
+                  className="w-24 h-24 bg-primary/80 rounded-lg flex items-center justify-center text-[rgb(var(--primary-foreground))] font-bold"
                 >
                   Motion
                 </motion.div>
@@ -357,7 +370,7 @@ const variants = {
             </Card>
             
             <Card title="Modal Example">
-              <p className="mb-4">
+              <p className="mb-4 text-[rgb(var(--foreground))]">
                 Click the button below to open a modal with smooth enter/exit animations:
               </p>
               
@@ -369,7 +382,7 @@ const variants = {
               </Button>
               
               <div className="mt-4">
-                <h4 className="text-sm font-semibold mb-2">Code:</h4>
+                <h4 className="text-sm font-semibold mb-2 text-[rgb(var(--foreground))]">Code:</h4>
                 <CodeBlock
                   language="jsx"
                   code={`<AnimatePresence>
@@ -384,7 +397,7 @@ const variants = {
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 50, opacity: 0 }}
-        className="bg-card p-6 rounded-lg max-w-md"
+        className="bg-[rgb(var(--card))] p-6 rounded-lg max-w-md text-[rgb(var(--card-foreground))]"
       >
         <h2 className="text-xl font-bold mb-2">Modal Title</h2>
         <p className="mb-4">This modal animates in and out smoothly!</p>
@@ -431,7 +444,7 @@ const variants = {
                         },
                       },
                     }}
-                    className="bg-primary/10 dark:bg-primary/20 p-3 rounded-md"
+                    className="bg-[rgb(var(--primary))]/10 dark:bg-[rgb(var(--primary))]/20 p-3 rounded-md text-[rgb(var(--foreground))]"
                   >
                     List Item {item}
                   </motion.div>
@@ -465,6 +478,7 @@ const variants = {
           transition: { duration: 0.4 },
         },
       }}
+      className="bg-[rgb(var(--primary))]/10 dark:bg-[rgb(var(--primary))]/20 p-3 rounded-md text-[rgb(var(--foreground))]"
     >
       List Item {item}
     </motion.div>
@@ -487,7 +501,7 @@ const variants = {
           </h2>
           
           <div className="mb-6">
-            <p className="mb-4">
+            <p className="mb-4 text-[rgb(var(--foreground))]">
               The relationship between traditional JavaScript animations and
               Framer Motion is similar to the relationship between manual
               animations in Java and JavaFX's animation framework:
@@ -573,13 +587,13 @@ sequence.play();`}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 50, opacity: 0 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-card p-6 rounded-lg max-w-md w-full m-4"
+              className="bg-[rgb(var(--card))] text-[rgb(var(--card-foreground))] p-6 rounded-lg max-w-md w-full m-4"
               onClick={(e) => e.stopPropagation()}
             >
               <h2 className="text-xl font-bold mb-2">Framer Motion Modal</h2>
               <p className="mb-4">
                 This modal is built with Framer Motion's
-                <code className="bg-muted px-1 py-0.5 rounded mx-1">AnimatePresence</code>
+                <code className="bg-[rgb(var(--muted))] px-1 py-0.5 rounded mx-1">AnimatePresence</code>
                 component, which allows it to smoothly animate when entering and exiting the DOM.
               </p>
               <div className="flex justify-end">

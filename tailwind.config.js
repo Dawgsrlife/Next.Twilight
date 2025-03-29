@@ -15,53 +15,53 @@ module.exports = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['var(--font-sans)'],
+        serif: ['var(--font-serif)'],
+        mono: ['var(--font-mono)'],
+      },
       colors: {
-        border: "rgb(var(--border))",
-        input: "rgb(var(--input))",
-        ring: "rgb(var(--ring))",
-        background: "rgb(var(--background))",
-        foreground: "rgb(var(--foreground))",
+        border: "rgb(var(--border) / <alpha-value>)",
+        input: "rgb(var(--input) / <alpha-value>)",
+        ring: "rgb(var(--ring) / <alpha-value>)",
+        background: "rgb(var(--background) / <alpha-value>)",
+        foreground: "rgb(var(--foreground) / <alpha-value>)",
         primary: {
-          DEFAULT: "rgb(var(--primary))",
-          foreground: "rgb(var(--primary-foreground))",
+          DEFAULT: "rgb(var(--primary) / <alpha-value>)",
+          foreground: "rgb(var(--primary-foreground) / <alpha-value>)",
         },
         secondary: {
-          DEFAULT: "rgb(var(--secondary))",
-          foreground: "rgb(var(--secondary-foreground))",
+          DEFAULT: "rgb(var(--secondary) / <alpha-value>)",
+          foreground: "rgb(var(--secondary-foreground) / <alpha-value>)",
         },
         destructive: {
-          DEFAULT: "rgb(var(--destructive))",
-          foreground: "rgb(var(--destructive-foreground))",
+          DEFAULT: "rgb(var(--destructive) / <alpha-value>)",
+          foreground: "rgb(var(--destructive-foreground) / <alpha-value>)",
         },
         muted: {
-          DEFAULT: "rgb(var(--muted))",
-          foreground: "rgb(var(--muted-foreground))",
+          DEFAULT: "rgb(var(--muted) / <alpha-value>)",
+          foreground: "rgb(var(--muted-foreground) / <alpha-value>)",
         },
         accent: {
-          DEFAULT: "rgb(var(--accent))",
-          foreground: "rgb(var(--accent-foreground))",
+          DEFAULT: "rgb(var(--accent) / <alpha-value>)",
+          foreground: "rgb(var(--accent-foreground) / <alpha-value>)",
         },
         popover: {
-          DEFAULT: "rgb(var(--popover))",
-          foreground: "rgb(var(--popover-foreground))",
+          DEFAULT: "rgb(var(--popover) / <alpha-value>)",
+          foreground: "rgb(var(--popover-foreground) / <alpha-value>)",
         },
         card: {
-          DEFAULT: "rgb(var(--card))",
-          foreground: "rgb(var(--card-foreground))",
+          DEFAULT: "rgb(var(--card) / <alpha-value>)",
+          foreground: "rgb(var(--card-foreground) / <alpha-value>)",
         },
+      },
+      borderColor: {
+        DEFAULT: "rgb(var(--border))",
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
-      },
-      fontFamily: {
-        sans: ["Inter", "var(--font-geist-sans)", "sans-serif"],
-        serif: ["Playfair Display", "serif"],
-        mono: ["var(--font-geist-mono)", "monospace"],
-      },
-      borderColor: {
-        DEFAULT: "rgb(var(--border))",
       },
       keyframes: {
         "accordion-down": {
@@ -72,38 +72,22 @@ module.exports = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: 0 },
         },
-        "fade-in": {
-          "0%": { opacity: 0 },
-          "100%": { opacity: 1 },
+        "rotate-360": {
+          from: { transform: "rotate(0deg)" },
+          to: { transform: "rotate(360deg)" },
         },
-        "fade-out": {
-          "0%": { opacity: 1 },
-          "100%": { opacity: 0 },
-        },
-        "slide-in-right": {
-          "0%": { transform: "translateX(100%)", opacity: 0 },
-          "100%": { transform: "translateX(0)", opacity: 1 },
-        },
-        "slide-out-left": {
-          "0%": { transform: "translateX(0)", opacity: 1 },
-          "100%": { transform: "translateX(-100%)", opacity: 0 },
-        },
-        "theme-toggle": {
-          "0%, 100%": { transform: "rotate(0deg)" },
-          "25%": { transform: "rotate(15deg)" },
-          "75%": { transform: "rotate(-15deg)" },
+        "pulse-glow": {
+          "0%, 100%": { opacity: 0.6 },
+          "50%": { opacity: 1 },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "fade-in": "fade-in 0.3s ease-in-out",
-        "fade-out": "fade-out 0.3s ease-in-out",
-        "slide-in-right": "slide-in-right 0.4s ease-out",
-        "slide-out-left": "slide-out-left 0.4s ease-out",
-        "theme-toggle": "theme-toggle 0.5s ease-in-out",
+        "rotate": "rotate-360 10s linear infinite",
+        "pulse-glow": "pulse-glow 2s ease-in-out infinite",
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 }; 
