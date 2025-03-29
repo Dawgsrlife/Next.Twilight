@@ -11,7 +11,7 @@ interface Todo {
   id: string;
   text: string;
   completed: boolean;
-  createdAt: Date;
+  createdAt: string; // Store as ISO string for better serialization
 }
 
 // Animations
@@ -35,6 +35,7 @@ export default function TodoPage() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodo, setNewTodo] = useState("");
   const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Load todos from localStorage on component mount
   useEffect(() => {
@@ -42,22 +43,24 @@ export default function TodoPage() {
     if (savedTodos) {
       try {
         const parsedTodos = JSON.parse(savedTodos);
-        // Convert string dates back to Date objects
-        const processedTodos = parsedTodos.map((todo: any) => ({
-          ...todo,
-          createdAt: new Date(todo.createdAt)
-        }));
-        setTodos(processedTodos);
+        setTodos(parsedTodos);
       } catch (error) {
         console.error("Error parsing todos from localStorage:", error);
+        // Initialize with empty array if there was an error
+        setTodos([]);
       }
     }
+    setIsInitialized(true);
   }, []);
 
   // Save todos to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem("todos", JSON.stringify(todos));
-  }, [todos]);
+    // Only save after initial load to prevent overwriting data
+    if (isInitialized) {
+      localStorage.setItem("todos", JSON.stringify(todos));
+      console.log("Todos saved to localStorage:", todos);
+    }
+  }, [todos, isInitialized]);
 
   const addTodo = (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,7 +70,7 @@ export default function TodoPage() {
       id: crypto.randomUUID(),
       text: newTodo,
       completed: false,
-      createdAt: new Date()
+      createdAt: new Date().toISOString() // Store as ISO string for better serialization
     };
 
     setTodos([...todos, newTodoItem]);
@@ -97,6 +100,15 @@ export default function TodoPage() {
   });
 
   const activeTodosCount = todos.filter(todo => !todo.completed).length;
+
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString();
+    } catch (error) {
+      return "Invalid date";
+    }
+  };
 
   return (
     <motion.main
@@ -197,7 +209,7 @@ export default function TodoPage() {
                       
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-[rgb(var(--muted-foreground))]">
-                          {todo.createdAt.toLocaleDateString()}
+                          {formatDate(todo.createdAt)}
                         </span>
                         <button
                           onClick={() => deleteTodo(todo.id)}

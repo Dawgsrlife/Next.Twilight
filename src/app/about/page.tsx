@@ -133,7 +133,7 @@ function TechnologySection() {
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <Card title="Next.js" className="h-full bg-white bg-opacity-95 shadow-sm hover:shadow-md transition-shadow dark:bg-gradient-to-br dark:from-purple-950/50 dark:to-indigo-950/50">
+            <Card title="Next.js" className="h-full bg-[rgb(var(--card))] border border-[rgb(var(--border))] shadow-sm hover:shadow-md transition-shadow dark:bg-gradient-to-br dark:from-purple-950/50 dark:to-indigo-950/50">
               <p className="mb-4">
                 The React framework for production that enables features like server-side rendering, static site generation, and API routes. Next.js 14 with the App Router provides an optimal developer experience.
               </p>
@@ -151,7 +151,7 @@ function TechnologySection() {
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
             transition={{ duration: 0.8, delay: 0.3 }}
           >
-            <Card title="TypeScript" className="h-full bg-white bg-opacity-95 shadow-sm hover:shadow-md transition-shadow dark:bg-gradient-to-br dark:from-purple-950/50 dark:to-indigo-950/50">
+            <Card title="TypeScript" className="h-full bg-[rgb(var(--card))] border border-[rgb(var(--border))] shadow-sm hover:shadow-md transition-shadow dark:bg-gradient-to-br dark:from-purple-950/50 dark:to-indigo-950/50">
               <p className="mb-4">
                 A strongly typed programming language that builds on JavaScript, giving you better tooling at any scale. TypeScript enhances code quality and developer experience through its robust type system.
               </p>
@@ -169,7 +169,7 @@ function TechnologySection() {
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            <Card title="Tailwind CSS" className="h-full bg-white bg-opacity-95 shadow-sm hover:shadow-md transition-shadow dark:bg-gradient-to-br dark:from-purple-950/50 dark:to-indigo-950/50">
+            <Card title="Tailwind CSS" className="h-full bg-[rgb(var(--card))] border border-[rgb(var(--border))] shadow-sm hover:shadow-md transition-shadow dark:bg-gradient-to-br dark:from-purple-950/50 dark:to-indigo-950/50">
               <p className="mb-4">
                 A utility-first CSS framework that allows for rapid UI development without sacrificing customization. Tailwind makes it easy to build responsive, consistent designs through composition.
               </p>
@@ -187,7 +187,7 @@ function TechnologySection() {
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
             transition={{ duration: 0.8, delay: 0.5 }}
           >
-            <Card title="Framer Motion" className="h-full bg-white bg-opacity-95 shadow-sm hover:shadow-md transition-shadow dark:bg-gradient-to-br dark:from-purple-950/50 dark:to-indigo-950/50">
+            <Card title="Framer Motion" className="h-full bg-[rgb(var(--card))] border border-[rgb(var(--border))] shadow-sm hover:shadow-md transition-shadow dark:bg-gradient-to-br dark:from-purple-950/50 dark:to-indigo-950/50">
               <p className="mb-4">
                 A production-ready animation library for React that makes it easy to create polished animations and gestures. Framer Motion enables sophisticated motion design with a simple declarative API.
               </p>
@@ -217,25 +217,25 @@ function TeamSection() {
   // Team members with updated styling and images
   const teamMembers = [
     {
-      name: "Alex (AlexanderTheMango)",
+      name: "AlexanderTheMango",
       role: "Creator & Developer",
       bio: "Full-stack developer focused on modern web technologies and user-friendly interfaces. Currently working on projects that bridge the gap between development and education.",
       image: "/images/AlexanderTheMango.png", // Using the existing image in public folder
     },
     {
-      name: "Sakura Miyazaki",
+      name: "Sakura Haruno",
       role: "UI Design",
       bio: "Placeholder representing UI design contributions to the project. Focus areas include component structure, visual hierarchy, and responsive layouts.",
       image: "/images/sakura.png", // Using the actual image
     },
     {
-      name: "Haruki Tanaka",
+      name: "Haruki Shiga",
       role: "Animation Development",
       bio: "Placeholder representing animation implementation work. Responsible for performance optimization and creating smooth transitions throughout the application.",
       image: "/images/haruki.png", // Using the actual image
     },
     {
-      name: "Yuki Nakamura",
+      name: "Yuki Suou",
       role: "Architecture",
       bio: "Placeholder representing code architecture planning. Focused on maintainable patterns, state management solutions, and code organization strategies.",
       image: "/images/yuki.png", // Using the actual image
@@ -256,7 +256,7 @@ function TeamSection() {
             Project contributors and role specializations
           </p>
           <p className="text-sm text-[rgb(var(--muted-foreground))] mt-2 italic">
-            Note: With the exception of Alex, team members represent different development specialties
+            Note: With the exception of AlexanderTheMango, team members represent different development specialties
           </p>
         </motion.div>
         
@@ -268,9 +268,9 @@ function TeamSection() {
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
               transition={{ duration: 0.8, delay: 0.2 + index * 0.1 }}
             >
-              <Card className="h-full bg-white bg-opacity-95 shadow-sm hover:shadow-md transition-shadow dark:bg-gradient-to-br dark:from-purple-950/30 dark:to-indigo-950/30">
+              <Card className="h-full bg-[rgb(var(--card))] border border-[rgb(var(--border))] shadow-sm hover:shadow-md transition-shadow dark:bg-gradient-to-br dark:from-purple-900/70 dark:to-indigo-900/70">
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
-                  <div className="w-24 h-24 rounded-full overflow-hidden flex-shrink-0 border-2 border-[rgb(var(--primary))]/80 dark:border-purple-400/80">
+                  <div className="w-24 h-24 rounded-full overflow-hidden flex-shrink-0 border-2 border-purple-500 dark:border-purple-400">
                     <img 
                       src={member.image} 
                       alt={member.name} 
@@ -280,7 +280,7 @@ function TeamSection() {
                   </div>
                   <div>
                     <h3 className="text-xl font-serif font-medium mb-1 text-[rgb(var(--foreground))]">{member.name}</h3>
-                    <p className="text-[rgb(var(--primary))] dark:text-purple-400 text-sm font-semibold mb-2">{member.role}</p>
+                    <p className="text-purple-600 dark:text-purple-400 text-sm font-semibold mb-2">{member.role}</p>
                     <p className="text-[rgb(var(--foreground))] opacity-80">{member.bio}</p>
                   </div>
                 </div>
@@ -316,26 +316,29 @@ function ContactSection() {
           initial={{ opacity: 0, y: 50 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="bg-white bg-opacity-95 border border-[rgb(var(--border))] p-4 sm:p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow dark:bg-gradient-to-br dark:from-purple-950/20 dark:to-indigo-950/20"
+          className="bg-[rgb(var(--card))] border border-[rgb(var(--border))] p-4 sm:p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow dark:bg-gradient-to-br dark:from-purple-900/70 dark:to-indigo-900/70"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <h3 className="text-xl font-serif font-medium mb-4 text-[rgb(var(--foreground))]">Contact Information</h3>
               <ul className="space-y-4">
                 <li className="flex items-start">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 min-w-6 text-[rgb(var(--primary))] dark:text-purple-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 min-w-6 text-[rgb(var(--foreground))] mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
-                  <span className="text-[rgb(var(--foreground))] break-words">contact@nextjstwilight.dev</span>
+                  <div className="text-[rgb(var(--foreground))] break-words">
+                    <div>alexandermenginquiries@gmail.com</div>
+                    <div>alex.meng@mail.utoronto.ca</div>
+                  </div>
                 </li>
                 <li className="flex items-start">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 min-w-6 text-[rgb(var(--primary))] dark:text-purple-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 min-w-6 text-[rgb(var(--foreground))] mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
-                  <span className="text-[rgb(var(--foreground))]">+1 (555) 123-4567</span>
+                  <span className="text-[rgb(var(--foreground))]">1 416 830 5842</span>
                 </li>
                 <li className="flex items-start">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 min-w-6 text-[rgb(var(--primary))] dark:text-purple-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 min-w-6 text-[rgb(var(--foreground))] mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
@@ -345,24 +348,24 @@ function ContactSection() {
               
               <h3 className="text-xl font-serif font-medium mt-8 mb-4 text-[rgb(var(--foreground))]">Connect</h3>
               <div className="flex flex-wrap gap-2">
-                <a href="https://github.com/Dawgsrlife" className="p-3 bg-[rgb(var(--muted))] rounded-full hover:bg-[rgb(var(--primary))] hover:text-[rgb(var(--primary-foreground))] transition-colors dark:hover:bg-purple-600">
+                <a href="https://github.com/Dawgsrlife" className="p-3 bg-[rgb(var(--background))] border border-[rgb(var(--border))] rounded-full hover:bg-[rgb(var(--primary))] hover:text-[rgb(var(--primary-foreground))] transition-colors dark:bg-[rgb(var(--card))] dark:hover:bg-purple-600">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
                   </svg>
                 </a>
-                <a href="https://x.com/Dawgsrlifee" className="p-3 bg-[rgb(var(--muted))] rounded-full hover:bg-[rgb(var(--primary))] hover:text-[rgb(var(--primary-foreground))] transition-colors dark:hover:bg-purple-600">
+                <a href="https://x.com/Dawgsrlifee" className="p-3 bg-[rgb(var(--background))] border border-[rgb(var(--border))] rounded-full hover:bg-[rgb(var(--primary))] hover:text-[rgb(var(--primary-foreground))] transition-colors dark:bg-[rgb(var(--card))] dark:hover:bg-purple-600">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path>
                   </svg>
                 </a>
-                <a href="https://www.linkedin.com/in/alex-he-meng" className="p-3 bg-[rgb(var(--muted))] rounded-full hover:bg-[rgb(var(--primary))] hover:text-[rgb(var(--primary-foreground))] transition-colors dark:hover:bg-purple-600">
+                <a href="https://www.linkedin.com/in/alex-he-meng" className="p-3 bg-[rgb(var(--background))] border border-[rgb(var(--border))] rounded-full hover:bg-[rgb(var(--primary))] hover:text-[rgb(var(--primary-foreground))] transition-colors dark:bg-[rgb(var(--card))] dark:hover:bg-purple-600">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
                     <rect x="2" y="9" width="4" height="12"></rect>
                     <circle cx="4" cy="4" r="2"></circle>
                   </svg>
                 </a>
-                <a href="https://www.instagram.com/alexanderthemango/" className="p-3 bg-[rgb(var(--muted))] rounded-full hover:bg-[rgb(var(--primary))] hover:text-[rgb(var(--primary-foreground))] transition-colors dark:hover:bg-purple-600">
+                <a href="https://www.instagram.com/alexanderthemango/" className="p-3 bg-[rgb(var(--background))] border border-[rgb(var(--border))] rounded-full hover:bg-[rgb(var(--primary))] hover:text-[rgb(var(--primary-foreground))] transition-colors dark:bg-[rgb(var(--card))] dark:hover:bg-purple-600">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
                     <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
