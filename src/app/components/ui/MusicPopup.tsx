@@ -277,7 +277,7 @@ export default function MusicPopup() {
       <AnimatePresence>
         {showPopup && (
           <motion.div
-            className={`fixed right-24 z-40 bg-[rgb(var(--card))] shadow-lg rounded-lg border border-[rgb(var(--border))] overflow-hidden ${popupPosition}`}
+            className={`fixed right-24 z-30 bg-[rgb(var(--card))] shadow-lg rounded-lg border border-[rgb(var(--border))] overflow-hidden ${popupPosition}`}
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -479,7 +479,7 @@ export default function MusicPopup() {
       {/* Music Player Toggle Button */}
       {!showPopup && (
         <motion.button
-          className={`fixed right-24 z-50 p-3 bg-[rgb(var(--card))] rounded-full shadow-md border border-[rgb(var(--border))] hover:bg-[rgb(var(--muted))] transition-colors ${buttonPosition}`}
+          className={`fixed right-24 z-30 p-3 bg-[rgb(var(--card))] rounded-full shadow-md border border-[rgb(var(--border))] hover:bg-[rgb(var(--muted))] transition-colors ${buttonPosition}`}
           onClick={togglePopup}
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}

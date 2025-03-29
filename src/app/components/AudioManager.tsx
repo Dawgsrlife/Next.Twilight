@@ -341,7 +341,7 @@ export default function AudioManager({ children }: { children: React.ReactNode }
     }
     // We intentionally omit isMuted and isPlaying from the dependencies
     // to prevent cycles, as this is a sync effect
-     
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPlaying]);
 
   // Toggle audio mute (affects ALL audio)

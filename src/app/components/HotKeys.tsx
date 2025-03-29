@@ -181,7 +181,7 @@ export default function HotKeys() {
     <AnimatePresence>
       {showHotkeys && (
         <motion.div
-          className={`fixed z-50 w-80 bg-[rgb(var(--card))] shadow-lg rounded-lg border border-[rgb(var(--border))] ${panelClassName}`}
+          className={`fixed z-30 w-80 bg-[rgb(var(--card))] shadow-lg rounded-lg border border-[rgb(var(--border))] ${panelClassName}`}
           initial={{ opacity: 0, y: 20, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -229,7 +229,7 @@ export default function HotKeys() {
       )}
       {!showHotkeys && (
         <motion.button
-          className={`fixed bottom-8 z-50 p-3 bg-[rgb(var(--card))] rounded-full shadow-md border border-[rgb(var(--border))] hover:bg-[rgb(var(--muted))] transition-colors ${buttonPosition}`}
+          className={`fixed bottom-8 z-30 p-3 bg-[rgb(var(--card))] rounded-full shadow-md border border-[rgb(var(--border))] hover:bg-[rgb(var(--muted))] transition-colors ${buttonPosition}`}
           onClick={toggleHotkeys}
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
