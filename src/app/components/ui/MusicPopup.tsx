@@ -69,12 +69,12 @@ export default function MusicPopup() {
     };
   }, []);
   
-  // Show popup when music status changes, only if autoHide is enabled and not triggered by CTRL+M
+  // Show popup when music status changes, only if autoHide is enabled and not triggered by ALT+M
   useEffect(() => {
     if (!autoHide || muteToggleDetected) return; // Skip auto-show/hide if disabled or if mute toggle detected
     
     // Status changes that should trigger the popup
-    // Note: We specifically don't want CTRL+M (mute toggle) to trigger this
+    // Note: We specifically don't want ALT+M (mute toggle) to trigger this
     setShowPopup(true);
     
     // If just became visible, update the popup stack

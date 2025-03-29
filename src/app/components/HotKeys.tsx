@@ -17,7 +17,7 @@ export const popupStack: string[] = [];
 
 export default function HotKeys() {
   const { toggleTheme } = useTheme();
-  const { toggleMute, isMuted } = useAudio();
+  const { toggleMute } = useAudio();
   const router = useRouter();
   const [showHotkeys, setShowHotkeys] = useState(false);
   const [musicPlayerOpen, setMusicPlayerOpen] = useState(true);
@@ -95,7 +95,7 @@ export default function HotKeys() {
 
   const hotkeys = useMemo(() => [
     { key: "d", ctrlKey: true, description: "Toggle dark/light mode", action: toggleTheme },
-    { key: "m", ctrlKey: true, description: "Toggle audio mute", action: toggleMute },
+    { key: "m", ctrlKey: false, altKey: true, description: "Toggle audio mute", action: toggleMute },
     { key: " ", ctrlKey: false, description: "Play/pause audio", action: toggleMute },
     { key: "j", ctrlKey: true, description: "Toggle music player", action: triggerMusicPlayerToggle },
     { key: "k", ctrlKey: true, description: "Toggle keyboard shortcuts", action: () => toggleHotkeys() },
@@ -134,7 +134,7 @@ export default function HotKeys() {
 
       if (e.key === ' ' && !e.ctrlKey && !e.metaKey) {
         const activeElement = document.activeElement;
-        const isInteractive = activeElement instanceof HTMLButtonElement || 
+        const isInteractive = activeElement instanceof HTMLButtonElement ||
           activeElement instanceof HTMLAnchorElement ||
           activeElement instanceof HTMLTextAreaElement ||
           activeElement instanceof HTMLInputElement ||
@@ -154,8 +154,10 @@ export default function HotKeys() {
       }
 
       for (const hotkey of hotkeys) {
-        if (e.key.toLowerCase() === hotkey.key.toLowerCase() && 
-            ((hotkey.ctrlKey && (e.ctrlKey || e.metaKey)) || (!hotkey.ctrlKey && !e.ctrlKey && !e.metaKey))) {
+        const ctrlMatch = hotkey.ctrlKey ? (e.ctrlKey || e.metaKey) : (!e.ctrlKey && !e.metaKey);
+        const altMatch = hotkey.altKey ? e.altKey : !e.altKey;
+        
+        if (e.key.toLowerCase() === hotkey.key.toLowerCase() && ctrlMatch && altMatch) {
           e.preventDefault();
           hotkey.action();
           return;
@@ -178,7 +180,7 @@ export default function HotKeys() {
   return (
     <AnimatePresence>
       {showHotkeys && (
-        <motion.div 
+        <motion.div
           className={`fixed z-50 w-80 bg-[rgb(var(--card))] shadow-lg rounded-lg border border-[rgb(var(--border))] ${panelClassName}`}
           initial={{ opacity: 0, y: 20, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -188,7 +190,7 @@ export default function HotKeys() {
         >
           <div className="p-4 border-b border-[rgb(var(--border))] flex justify-between items-center">
             <h3 className="font-medium">Keyboard Shortcuts</h3>
-            <button 
+            <button
               onClick={toggleHotkeys}
               className="p-1 rounded-md hover:bg-[rgb(var(--muted))] transition-colors"
             >
@@ -197,7 +199,7 @@ export default function HotKeys() {
               </svg>
             </button>
           </div>
-          
+
           <div className="p-4 max-h-96 overflow-y-auto">
             <ul className="space-y-3">
               {hotkeys.map((hotkey, index) => (
@@ -206,7 +208,12 @@ export default function HotKeys() {
                     {hotkey.ctrlKey && (
                       <kbd className="px-2 py-1 text-xs font-semibold bg-[rgb(var(--muted))] rounded-md border border-[rgb(var(--border))]">CTRL</kbd>
                     )}
-                    {hotkey.ctrlKey && (<span className="text-[rgb(var(--muted-foreground))] mx-1">+</span>)}
+                    {hotkey.altKey && (
+                      <kbd className="px-2 py-1 text-xs font-semibold bg-[rgb(var(--muted))] rounded-md border border-[rgb(var(--border))]">ALT</kbd>
+                    )}
+                    {(hotkey.ctrlKey || hotkey.altKey) && (
+                      <span className="text-[rgb(var(--muted-foreground))] mx-1">+</span>
+                    )}
                     <kbd className="px-2 py-1 text-xs font-semibold bg-[rgb(var(--muted))] rounded-md border border-[rgb(var(--border))]">{hotkey.key === " " ? "SPACE" : hotkey.key.toUpperCase()}</kbd>
                   </div>
                   <span className="text-sm">{hotkey.description}</span>
@@ -214,7 +221,7 @@ export default function HotKeys() {
               ))}
             </ul>
           </div>
-          
+
           <div className="p-3 bg-[rgb(var(--muted))] text-[rgb(var(--muted-foreground))] text-xs rounded-b-lg">
             Press <kbd className="px-1 py-0.5 bg-[rgb(var(--background))] rounded border border-[rgb(var(--border))]">/</kbd> or <kbd className="px-1 py-0.5 bg-[rgb(var(--background))] rounded border border-[rgb(var(--border))]">CTRL+K</kbd> to toggle this panel
           </div>
