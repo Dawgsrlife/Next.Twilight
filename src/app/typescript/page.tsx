@@ -66,9 +66,8 @@ export default function TypeScriptPage() {
           </div>
 
           <p className="mb-6">
-            Think of TypeScript as a tool that helps you write better JavaScript
-            by catching errors before your code runs. It's similar to how
-            compiled languages like Java work compared to interpreted languages.
+            TypeScript is a superset of JavaScript that adds static type checking. This helps you catch errors early 
+            by catching errors before your code runs. It&apos;s similar to how a spell checker catches errors before you publish a document.
           </p>
         </motion.div>
 
@@ -126,9 +125,8 @@ console.log(addNumbers(5, 10));        // 15
           <div className="mb-6">
             <h3 className="text-xl font-semibold mb-2">Java Analogy:</h3>
             <p className="mb-4">
-              If you're familiar with Java, you can think of the relationship
-              between JavaScript and TypeScript as similar to the relationship
-              between a loosely typed scripting language and Java:
+              If you&apos;re familiar with Java, you can think of the relationship between TypeScript and JavaScript like the relationship between 
+              Java and a hypothetical loosely-typed version of Java.
             </p>
             <CodeBlock
               language="java"
@@ -241,8 +239,7 @@ interface Repository<T> {
             TypeScript in Next.js Projects
           </h2>
           <p className="mb-4">
-            Next.js has excellent TypeScript integration. Here's how TypeScript
-            is used in this project:
+            Next.js has excellent TypeScript integration. Here&apos;s how TypeScript helps in a Next.js project:
           </p>
           <CodeBlock
             language="typescript"

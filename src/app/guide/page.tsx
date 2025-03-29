@@ -3,7 +3,6 @@
 import React from "react";
 import { motion } from "framer-motion";
 import Section from "../components/ui/Section";
-import CodeBlock from "../components/ui/CodeBlock";
 import { Card } from "../components/ui/Card";
 import { pageTransition } from "../animations/variants";
 

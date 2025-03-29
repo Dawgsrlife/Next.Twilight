@@ -3,7 +3,7 @@
 import { useAudio } from '../AudioManager';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { toggleMusicPlayerEvent, popupStack } from '../HotKeys';
+import { popupStack } from '../HotKeys';
 
 // Create custom events for popup state management
 export const musicPopupStateEvent = new CustomEvent('musicPopupStateChanged', { detail: false });
@@ -19,11 +19,11 @@ export default function MusicPopup() {
   const [showPopup, setShowPopup] = useState(true);
   const [autoHide, setAutoHide] = useState(true);
   const [muteToggleDetected, setMuteToggleDetected] = useState(false); // Track mute toggle events
-  const [trackInfo, setTrackInfo] = useState({
+  const trackInfo = {
     title: "Chill Lofi Beats",
     artist: "Next.js Twilight",
     duration: "∞",
-  });
+  };
 
   // Track current beat for animation
   const [beat, setBeat] = useState(0);

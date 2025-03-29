@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useTheme } from './ThemeProvider';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useAudio } from './AudioManager';
-import { musicPopupClosedEvent, requestCloseAllPopupsEvent } from './ui/MusicPopup';
+import { requestCloseAllPopupsEvent } from './ui/MusicPopup';
 
 // Custom event for toggling music player
 export const toggleMusicPlayerEvent = new CustomEvent('toggleMusicPlayer');
@@ -17,16 +17,16 @@ export const popupStack: string[] = [];
 
 export default function HotKeys() {
   const { toggleTheme } = useTheme();
-  const { toggleMute, isMuted } = useAudio();
+  const { toggleMute } = useAudio();
   const router = useRouter();
   const [showHotkeys, setShowHotkeys] = useState(false);
   const [musicPlayerOpen, setMusicPlayerOpen] = useState(true); // Default to true since MusicPopup starts open
   const [musicButtonVisible, setMusicButtonVisible] = useState(true);
   
   // Function to toggle music player via event
-  const triggerMusicPlayerToggle = () => {
+  const triggerMusicPlayerToggle = useCallback(() => {
     document.dispatchEvent(toggleMusicPlayerEvent);
-  };
+  }, []);
   
   // Track popup states for layering
   useEffect(() => {
@@ -104,27 +104,8 @@ export default function HotKeys() {
     };
   }, [showHotkeys]);
   
-  // Hotkey mappings and descriptions
-  const hotkeys = [
-    { key: "d", ctrlKey: true, description: "Toggle dark/light mode", action: toggleTheme },
-    { key: "m", ctrlKey: true, description: "Toggle audio mute", action: toggleMute },
-    { key: " ", ctrlKey: false, description: "Play/pause audio", action: toggleMute },
-    { key: "j", ctrlKey: true, description: "Toggle music player", action: triggerMusicPlayerToggle },
-    { key: "k", ctrlKey: true, description: "Toggle keyboard shortcuts", action: () => toggleHotkeys() },
-    { key: "g", ctrlKey: true, description: "Open GitHub repository", action: () => window.open("https://github.com/Dawgsrlife/nextjs-typescript-starter", "_blank") },
-    { key: "h", ctrlKey: true, description: "Open GitHub profile", action: () => window.open("https://github.com/Dawgsrlife", "_blank") },
-    { key: "1", ctrlKey: true, description: "Go to Home page", action: () => router.push("/") },
-    { key: "2", ctrlKey: true, description: "Go to TypeScript page", action: () => router.push("/typescript") },
-    { key: "3", ctrlKey: true, description: "Go to Next.js page", action: () => router.push("/next-js") },
-    { key: "4", ctrlKey: true, description: "Go to Tailwind CSS page", action: () => router.push("/tailwind") },
-    { key: "5", ctrlKey: true, description: "Go to Framer Motion page", action: () => router.push("/framer-motion") },
-    { key: "6", ctrlKey: true, description: "Go to Todo page", action: () => router.push("/todo") },
-    { key: "7", ctrlKey: true, description: "Go to About page", action: () => router.push("/about") },
-    { key: "/", ctrlKey: false, description: "Show/hide hotkey reference", action: () => toggleHotkeys() },
-  ];
-
   // Toggle hotkeys panel
-  const toggleHotkeys = () => {
+  const toggleHotkeys = useCallback(() => {
     const newState = !showHotkeys;
     setShowHotkeys(newState);
     
@@ -148,8 +129,27 @@ export default function HotKeys() {
         popupStack.splice(index, 1);
       }
     }
-  };
+  }, [showHotkeys]);
   
+  // Hotkey mappings and descriptions
+  const hotkeys = useMemo(() => [
+    { key: "d", ctrlKey: true, description: "Toggle dark/light mode", action: toggleTheme },
+    { key: "m", ctrlKey: true, description: "Toggle audio mute", action: toggleMute },
+    { key: " ", ctrlKey: false, description: "Play/pause audio", action: toggleMute },
+    { key: "j", ctrlKey: true, description: "Toggle music player", action: triggerMusicPlayerToggle },
+    { key: "k", ctrlKey: true, description: "Toggle keyboard shortcuts", action: () => toggleHotkeys() },
+    { key: "g", ctrlKey: true, description: "Open GitHub repository", action: () => window.open("https://github.com/Dawgsrlife/nextjs-typescript-starter", "_blank") },
+    { key: "h", ctrlKey: true, description: "Open GitHub profile", action: () => window.open("https://github.com/Dawgsrlife", "_blank") },
+    { key: "1", ctrlKey: true, description: "Go to Home page", action: () => router.push("/") },
+    { key: "2", ctrlKey: true, description: "Go to TypeScript page", action: () => router.push("/typescript") },
+    { key: "3", ctrlKey: true, description: "Go to Next.js page", action: () => router.push("/next-js") },
+    { key: "4", ctrlKey: true, description: "Go to Tailwind CSS page", action: () => router.push("/tailwind") },
+    { key: "5", ctrlKey: true, description: "Go to Framer Motion page", action: () => router.push("/framer-motion") },
+    { key: "6", ctrlKey: true, description: "Go to Todo page", action: () => router.push("/todo") },
+    { key: "7", ctrlKey: true, description: "Go to About page", action: () => router.push("/about") },
+    { key: "/", ctrlKey: false, description: "Show/hide hotkey reference", action: () => toggleHotkeys() },
+  ], [toggleTheme, toggleMute, router, toggleHotkeys, triggerMusicPlayerToggle]);
+
   // Close the top-most popup when Escape is pressed
   const closeTopPopup = () => {
     if (popupStack.length === 0) return;
@@ -217,7 +217,7 @@ export default function HotKeys() {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [hotkeys, toggleTheme, toggleMute, router]);
+  }, [hotkeys, toggleTheme, toggleMute, router, toggleHotkeys]);
 
   // Calculate button and panel position based on music player state
   const buttonPosition = "right-8"; // Keep button position fixed

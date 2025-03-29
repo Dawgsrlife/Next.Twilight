@@ -105,7 +105,7 @@ export default function TodoPage() {
     try {
       const date = new Date(dateString);
       return date.toLocaleDateString();
-    } catch (error) {
+    } catch {
       return "Invalid date";
     }
   };
@@ -290,7 +290,7 @@ export default function TodoPage() {
           <div className="mt-8 text-center">
             <h3 className="text-xl font-serif mb-2">Pro Tips</h3>
             <p className="text-[rgb(var(--muted-foreground))]">
-              Your todos are automatically saved to your browser's local storage.
+              Your todos are automatically saved to your browser&apos;s local storage.
               <br />
               They will persist even if you close or refresh the page.
             </p>

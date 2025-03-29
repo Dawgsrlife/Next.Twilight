@@ -143,8 +143,8 @@ export default function FramerMotionPage() {
 
           <p className="mb-6">
             Framer Motion abstracts away the complexity of animations, allowing
-            you to create sophisticated motion with minimal code. It's similar to
-            how JavaFX's animation API simplifies animations compared to
+            you to create sophisticated motion with minimal code. It&apos;s similar to
+            how JavaFX&apos;s animation API simplifies animations compared to
             manually handling animations in base Java.
           </p>
         </motion.div>
@@ -240,7 +240,7 @@ const variants = {
             </Card>
             
             <Card title="AnimatePresence">
-              <p className="mb-2">Animate components when they're removed from the React tree:</p>
+              <p className="mb-2">Animate components when they&apos;re removed from the React tree:</p>
               <CodeBlock
                 language="jsx"
                 code={`<AnimatePresence>
@@ -251,7 +251,7 @@ const variants = {
       exit={{ opacity: 0, height: 0 }}
       transition={{ duration: 0.3 }}
     >
-      I'll animate when I enter and exit!
+      I&apos;ll animate when I enter and exit!
     </motion.div>
   )}
 </AnimatePresence>
@@ -276,7 +276,7 @@ const variants = {
       >
         <h2 className="text-xl font-bold mb-2">Framer Motion Modal</h2>
         <p className="mb-4">
-          This modal is built with Framer Motion's
+          This modal is built with Framer Motion&apos;s
           <code className="bg-[rgb(var(--muted))] px-1 py-0.5 rounded mx-1">AnimatePresence</code>
           component, which allows it to smoothly animate when entering and exiting the DOM.
         </p>
@@ -504,7 +504,7 @@ const variants = {
             <p className="mb-4 text-[rgb(var(--foreground))]">
               The relationship between traditional JavaScript animations and
               Framer Motion is similar to the relationship between manual
-              animations in Java and JavaFX's animation framework:
+              animations in Java and JavaFX&apos;s animation framework:
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -592,7 +592,7 @@ sequence.play();`}
             >
               <h2 className="text-xl font-bold mb-2">Framer Motion Modal</h2>
               <p className="mb-4">
-                This modal is built with Framer Motion's
+                This modal is built with Framer Motion&apos;s
                 <code className="bg-[rgb(var(--muted))] px-1 py-0.5 rounded mx-1">AnimatePresence</code>
                 component, which allows it to smoothly animate when entering and exiting the DOM.
               </p>

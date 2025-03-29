@@ -8,11 +8,10 @@ import Section from "./components/ui/Section";
 import { useTutorialStore } from "./store/tutorialStore";
 import Button from "./components/ui/Button";
 import CodeBlock from "./components/ui/CodeBlock";
-import ProgressBar from "./components/ui/ProgressBar";
 import { pageTransition, staggerContainer, staggerItems } from "./animations/variants";
 
 export default function Home() {
-  const { tutorials, setActiveTutorial, completedTutorials } = useTutorialStore();
+  const { tutorials, setActiveTutorial } = useTutorialStore();
   
   useEffect(() => {
     setActiveTutorial("intro");

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { useAudio } from './AudioManager';
@@ -13,60 +13,36 @@ export default function EasterEgg() {
   const [showEasterEgg, setShowEasterEgg] = useState(false);
   const { playEasterEggSound, stopEasterEggSound } = useAudio();
   
-  useEffect(() => {
-    // Check if the sequence matches our secret code
-    const checkSecretCode = () => {
-      const pressed = keysPressed.join('').toLowerCase();
-      
-      // Keep only the last 5 characters to avoid buffer overflow
-      if (keysPressed.length > 10) {
-        setKeysPressed(keys => keys.slice(-10));
-      }
-      
-      const isMatch = SECRET_CODE.startsWith(pressed);
-      
-      if (!isMatch) {
-        setKeysPressed([]);
-        return;
-      }
-      
-      if (pressed === SECRET_CODE) {
-        triggerEasterEgg();
-        setKeysPressed([]);
-      }
-    };
-    
-    checkSecretCode();
-  }, [keysPressed]);
-  
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Only track alphabetic keys
-      if (/^[a-z]$/i.test(e.key)) {
-        setKeysPressed(prev => [...prev, e.key]);
-      }
-    };
-    
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-  
-  const triggerEasterEgg = () => {
+  // Define triggerEasterEgg before it's used in useEffect
+  const triggerEasterEgg = useCallback(() => {
     setShowEasterEgg(true);
-    
-    // Play chicken sound using our audio manager
-    playEasterEggSound();
     
     // Create explosive confetti
     launchConfetti();
     
+    // Try to play chicken sound using our audio manager
+    // Wrapped in try/catch to prevent any audio errors from breaking the Easter egg
+    try {
+      playEasterEggSound().catch(() => {
+        // Silent catch - don't let audio errors affect the visual experience
+      });
+    } catch (e) {
+      // Silent catch - just ensure the Easter egg animation still works
+      console.log("Audio playback error suppressed");
+    }
+    
     // Hide after animation completes and fade out sound
     setTimeout(() => {
-      stopEasterEggSound(true); // true for fade out
+      try {
+        stopEasterEggSound(true); // true for fade out
+      } catch (e) {
+        // Ensure animation cleanup happens even if audio fails
+      }
       setShowEasterEgg(false);
     }, 4500);
-  };
+  }, [playEasterEggSound, stopEasterEggSound]);
   
+  // Define launchConfetti function before it's used in triggerEasterEgg
   const launchConfetti = () => {
     const duration = 3 * 1000;
     const end = Date.now() + duration;
@@ -110,6 +86,44 @@ export default function EasterEgg() {
       });
     }, 1000);
   };
+  
+  useEffect(() => {
+    // Check if the sequence matches our secret code
+    const checkSecretCode = () => {
+      const pressed = keysPressed.join('').toLowerCase();
+      
+      // Keep only the last 5 characters to avoid buffer overflow
+      if (keysPressed.length > 10) {
+        setKeysPressed(keys => keys.slice(-10));
+      }
+      
+      const isMatch = SECRET_CODE.startsWith(pressed);
+      
+      if (!isMatch) {
+        setKeysPressed([]);
+        return;
+      }
+      
+      if (pressed === SECRET_CODE) {
+        triggerEasterEgg();
+        setKeysPressed([]);
+      }
+    };
+    
+    checkSecretCode();
+  }, [keysPressed, triggerEasterEgg]);
+  
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only track alphabetic keys
+      if (/^[a-z]$/i.test(e.key)) {
+        setKeysPressed(prev => [...prev, e.key]);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
   
   return (
     <AnimatePresence>

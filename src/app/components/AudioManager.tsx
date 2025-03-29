@@ -59,7 +59,7 @@ export default function AudioManager({ children }: { children: React.ReactNode }
       easterEggSoundRef.current.loop = false; // Easter egg sound should not loop
       
       // Initialize Web Audio API for visualization
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      audioContextRef.current = new (window.AudioContext || (window as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext)();
       analyserRef.current = audioContextRef.current.createAnalyser();
       analyserRef.current.fftSize = 64; // Small FFT size for performance
       
@@ -181,7 +181,7 @@ export default function AudioManager({ children }: { children: React.ReactNode }
       document.removeEventListener('keydown', () => {});
       document.removeEventListener('touchstart', () => {});
     };
-  }, []);
+  }, [isMuted]);  
   
   // Function to start audio visualization
   const startVisualization = () => {
@@ -235,7 +235,7 @@ export default function AudioManager({ children }: { children: React.ReactNode }
         });
       }
     }
-  }, [isMuted]);
+  }, [isMuted]);  
   
   // Toggle mute function
   const toggleMute = () => {
@@ -263,11 +263,17 @@ export default function AudioManager({ children }: { children: React.ReactNode }
       
       if (playPromise !== undefined) {
         return playPromise.catch(e => {
-          console.error("Easter egg sound play failed:", e);
+          // Don't treat aborted fetches as errors that need to be logged
+          if (e.name !== 'AbortError') {
+            console.error("Easter egg sound play failed:", e);
+          }
         });
       }
     } catch (e) {
-      console.error("Easter egg sound error:", e);
+      // Check if this is an abort error
+      if (e instanceof Error && e.name !== 'AbortError') {
+        console.error("Easter egg sound error:", e);
+      }
     }
     
     return Promise.resolve();

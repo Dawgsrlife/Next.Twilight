@@ -6,6 +6,7 @@ import Section from "../components/ui/Section";
 import { Card } from "../components/ui/Card";
 import { pageTransition } from "../animations/variants";
 import { useTheme } from "../components/ThemeProvider";
+import Image from "next/image";
 
 export default function AboutPage() {
   return (
@@ -96,7 +97,7 @@ function MissionSection() {
           </p>
           
           <p>
-            The project demonstrates practical implementations of Next.js, TypeScript, Tailwind CSS, and Framer Motion working in harmony. Instead of isolated examples, you'll find real-world patterns and solutions that show how these technologies complement each other in production-ready code.
+            The project demonstrates practical implementations of Next.js, TypeScript, Tailwind CSS, and Framer Motion working in harmony. Instead of isolated examples, you&apos;ll find real-world patterns and solutions that show how these technologies complement each other in production-ready code.
           </p>
           
           <p>
@@ -271,11 +272,13 @@ function TeamSection() {
               <Card className="h-full bg-gradient-to-br from-[rgba(var(--card-gradient-from))] to-[rgba(var(--card-gradient-to))] border border-[rgb(var(--border))] shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
                   <div className="w-24 h-24 rounded-full overflow-hidden flex-shrink-0 border-2 border-purple-500 dark:border-purple-400">
-                    <img 
+                    <Image 
                       src={member.image} 
                       alt={member.name} 
                       className="w-full h-full object-cover"
                       onError={handleImageError}
+                      width={96}
+                      height={96}
                     />
                   </div>
                   <div>

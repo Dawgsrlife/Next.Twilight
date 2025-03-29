@@ -3,9 +3,6 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { pageTransition } from "../../../animations/variants";
-import Section from "../../../components/ui/Section";
-import CodeBlock from "../../../components/ui/CodeBlock";
-import { Card } from "../../../components/ui/Card";
 
 export default function TutorialGuidePage() {
   return (
